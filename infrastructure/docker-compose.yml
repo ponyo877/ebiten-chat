@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  app:
+    image: gcr.io/gke-test-287910/folks-ui:v0.0.1
+    ports:
+      - "8000:8000"
+    environment:
+      AP_PORT: 8000
+    depends_on:
+      - nginx
+  nginx:
+    image: gcr.io/gke-test-287910/folks-nginx:v0.0.1
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/top.html:/var/www/static/index.html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
