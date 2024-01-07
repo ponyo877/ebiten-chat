@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   app:
-    image: gcr.io/gke-test-287910/folks-ui:v0.0.1
+    image: gcr.io/gke-test-287910/folks-ui:v0.0.2
     ports:
       - "8000:8000"
     environment:
