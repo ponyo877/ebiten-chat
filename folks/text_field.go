@@ -40,6 +40,16 @@ func NewTextField(bounds image.Rectangle, multilines bool) *TextField {
 	}
 }
 
+func (t *TextField) Text() string {
+	return t.text
+}
+
+func (t *TextField) Clear() {
+	t.text = ""
+	t.selectionStart = 0
+	t.selectionEnd = 0
+}
+
 func (t *TextField) Contains(x, y int) bool {
 	return image.Pt(x, y).In(t.bounds)
 }

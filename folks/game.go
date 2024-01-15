@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 	"log"
-	"math/rand"
 	"slices"
 	"time"
 
@@ -16,6 +15,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	raudio "github.com/hajimehoshi/ebiten/v2/examples/resources/audio"
+)
+
+type Dir int
+
+const (
+	DirLeft Dir = iota
+	DirRight
 )
 
 type Game struct {
@@ -29,10 +35,9 @@ type Game struct {
 	cameraX int
 	cameraY int
 
-	messages []*Message
+	dir Dir
 
-	// Pipes
-	pipeTileYs []int
+	messages []*Message
 
 	audioContext *audio.Context
 	jumpPlayer   *audio.Player
@@ -55,10 +60,7 @@ func (g *Game) init() {
 	g.y16 = 100 * 16
 	g.cameraX = 0
 	g.cameraY = 0
-	g.pipeTileYs = make([]int, 256)
-	for i := range g.pipeTileYs {
-		g.pipeTileYs[i] = rand.Intn(6) + 2
-	}
+	g.dir = DirRight
 
 	if g.audioContext == nil {
 		g.audioContext = audio.NewContext(48000)
@@ -90,9 +92,17 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *Game) Update() error {
 	g.x16, g.y16 = ebiten.CursorPosition()
 	g.now = time.Now()
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		message, _ := NewMessage("Hello, World!")
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+		text := g.textField.Text()
+		g.textField.Clear()
+		message, _ := NewMessage(text)
 		g.messages = append(g.messages, message)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyRight) {
+		g.dir = DirRight
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+		g.dir = DirLeft
 	}
 	LatestExpiredMessageIndex := -1
 	for i, message := range g.messages {
@@ -133,9 +143,14 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 func (g *Game) drawGopher(Screen *ebiten.Image) {
 	gopherX := g.x16 - g.cameraX
 	gopherY := g.y16 - g.cameraY
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(gopherX), float64(gopherY))
 	op.Filter = ebiten.FilterLinear
+	gopherImage := gopherRightImage
+	if g.dir == DirLeft {
+		gopherImage = gopherLeftImage
+	}
 	Screen.DrawImage(gopherImage, op)
 	for _, message := range g.messages {
 		speechBubble, _ := NewSpeechBubble(message, gopherX, gopherY)

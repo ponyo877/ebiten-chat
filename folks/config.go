@@ -10,9 +10,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	resources "github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"golang.org/x/image/font"
+	resources "github.com/ponyo877/folks-ui/static"
 )
 
 var FlagCRT = flag.Bool("crt", false, "enable the CRT effect")
@@ -31,24 +30,22 @@ const (
 )
 
 var (
-	gopherImage      *ebiten.Image
-	tilesImage       *ebiten.Image
+	gopherLeftImage  *ebiten.Image
+	gopherRightImage *ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
-	mplusNormalFont  font.Face
 )
 
 func init() {
-	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_png))
+	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_Left_png))
 	if err != nil {
 		log.Fatal(err)
 	}
-	gopherImage = ebiten.NewImageFromImage(img)
-
-	img, _, err = image.Decode(bytes.NewReader(resources.Tiles_png))
+	gopherLeftImage = ebiten.NewImageFromImage(img)
+	img, _, err = image.Decode(bytes.NewReader(resources.Gopher_Right_png))
 	if err != nil {
 		log.Fatal(err)
 	}
-	tilesImage = ebiten.NewImageFromImage(img)
+	gopherRightImage = ebiten.NewImageFromImage(img)
 }
 
 func init() {
