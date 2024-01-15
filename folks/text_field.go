@@ -1,12 +1,10 @@
 package folks
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"math"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/hajimehoshi/bitmapfont/v3"
@@ -172,7 +170,6 @@ func (t *TextField) Update() {
 					t.selectionStart += len(state.Text)
 					t.selectionEnd = t.selectionStart
 					t.state = textinput.State{}
-					fmt.Printf("[%s] text: %s\n", time.Now(), t.text)
 					continue
 				}
 				t.state = state

@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math/rand"
 	"slices"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	raudio "github.com/hajimehoshi/ebiten/v2/examples/resources/audio"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Dir int
@@ -43,6 +45,10 @@ type Game struct {
 	jumpPlayer   *audio.Player
 	hitPlayer    *audio.Player
 
+	characters []*Character
+	strokes    map[*Stroke]struct{}
+	touchIDs   []ebiten.TouchID
+
 	textField *TextField
 }
 
@@ -61,6 +67,14 @@ func (g *Game) init() {
 	g.cameraX = 0
 	g.cameraY = 0
 	g.dir = DirRight
+
+	w, h := gopherLeftImage.Bounds().Dx(), gopherLeftImage.Bounds().Dy()
+	g.characters = append(g.characters, &Character{
+		image: gopherLeftImage,
+		pX:    rand.Intn(ScreenWidth - w),
+		pY:    rand.Intn(ScreenHeight - h),
+	})
+	g.strokes = map[*Stroke]struct{}{}
 
 	if g.audioContext == nil {
 		g.audioContext = audio.NewContext(48000)
@@ -115,6 +129,7 @@ func (g *Game) Update() error {
 		g.messages = slices.Delete(g.messages, 0, LatestExpiredMessageIndex)
 	}
 
+	// InputField
 	if g.textField == nil {
 		pX := 16
 		pY := ScreenHeight - pX - textFieldHeight
@@ -129,6 +144,25 @@ func (g *Game) Update() error {
 		g.textField.Blur()
 		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 	}
+
+	// Drug & Drop
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		s := NewStroke(&MouseStrokeSource{})
+		s.SetDraggingObject(g.characterAt(s.Position()))
+		g.strokes[s] = struct{}{}
+	}
+	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
+	for _, id := range g.touchIDs {
+		s := NewStroke(&TouchStrokeSource{id})
+		s.SetDraggingObject(g.characterAt(s.Position()))
+		g.strokes[s] = struct{}{}
+	}
+	for s := range g.strokes {
+		g.updateStroke(s)
+		if s.IsReleased() {
+			delete(g.strokes, s)
+		}
+	}
 	return nil
 }
 
@@ -140,24 +174,93 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 	ebitenutil.DebugPrint(Screen, fmt.Sprintf("TPS: %0.2f", ebiten.ActualTPS()))
 }
 
-func (g *Game) drawGopher(Screen *ebiten.Image) {
-	gopherX := g.x16 - g.cameraX
-	gopherY := g.y16 - g.cameraY
+func (g *Game) drawGopher(screen *ebiten.Image) {
+	// gopherX := g.x16 - g.cameraX
+	// gopherY := g.y16 - g.cameraY
 
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(gopherX), float64(gopherY))
-	op.Filter = ebiten.FilterLinear
-	gopherImage := gopherRightImage
-	if g.dir == DirLeft {
-		gopherImage = gopherLeftImage
+	// op := &ebiten.DrawImageOptions{}
+	// op.GeoM.Translate(float64(gopherX), float64(gopherY))
+	// op.Filter = ebiten.FilterLinear
+	// gopherImage := gopherRightImage
+	// if g.dir == DirLeft {
+	// 	gopherImage = gopherLeftImage
+	// }
+	// Screen.DrawImage(gopherImage, op)
+	// for _, message := range g.messages {
+	// 	speechBubble, _ := NewSpeechBubble(message, gopherX, gopherY)
+	// 	speechBubble.Draw(Screen, g.now)
+	// }
+	draggingCharacters := map[*Character]struct{}{}
+	for s := range g.strokes {
+		if character := s.DraggingObject().(*Character); character != nil {
+			draggingCharacters[character] = struct{}{}
+		}
 	}
-	Screen.DrawImage(gopherImage, op)
-	for _, message := range g.messages {
-		speechBubble, _ := NewSpeechBubble(message, gopherX, gopherY)
-		speechBubble.Draw(Screen, g.now)
+
+	for _, s := range g.characters {
+		if _, ok := draggingCharacters[s]; ok {
+			continue
+		}
+		s.Draw(screen, 0, 0, 1)
 	}
+	for s := range g.strokes {
+		dx, dy := s.PositionDiff()
+		if character := s.DraggingObject().(*Character); character != nil {
+			character.Draw(screen, dx, dy, 0.5)
+		}
+	}
+
+	// SpeechBubble
+	for _, character := range g.characters {
+		gopherX, gopherY := character.Point()
+		for _, message := range g.messages {
+			speechBubble, _ := NewSpeechBubble(message, gopherX, gopherY)
+			speechBubble.Draw(screen, g.now)
+		}
+	}
+
 }
 
 func (g *Game) drawTextField(screen *ebiten.Image) {
 	g.textField.Draw(screen)
+}
+
+func (g *Game) characterAt(x, y int) *Character {
+	// As the characters are ordered from back to front,
+	// search the clicked/touched character in reverse order.
+	for i := len(g.characters) - 1; i >= 0; i-- {
+		s := g.characters[i]
+		if s.In(x, y) {
+			return s
+		}
+	}
+	return nil
+}
+
+func (g *Game) updateStroke(stroke *Stroke) {
+	stroke.Update()
+	if !stroke.IsReleased() {
+		return
+	}
+
+	s := stroke.DraggingObject().(*Character)
+	if s == nil {
+		return
+	}
+
+	s.MoveBy(stroke.PositionDiff())
+
+	index := -1
+	for i, ss := range g.characters {
+		if ss == s {
+			index = i
+			break
+		}
+	}
+
+	// Move the dragged character to the front.
+	g.characters = append(g.characters[:index], g.characters[index+1:]...)
+	g.characters = append(g.characters, s)
+
+	stroke.SetDraggingObject(nil)
 }

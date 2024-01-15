@@ -5,9 +5,8 @@ import (
 	"flag"
 	_ "image/png"
 
-	"github.com/ponyo877/folks-ui/folks"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/ponyo877/folks-ui/folks"
 )
 
 type Response struct {
