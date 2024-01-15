@@ -19,13 +19,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Dir int
-
-const (
-	DirLeft Dir = iota
-	DirRight
-)
-
 type Game struct {
 	// The gopher's position
 	x16 int
@@ -70,9 +63,10 @@ func (g *Game) init() {
 
 	w, h := gopherLeftImage.Bounds().Dx(), gopherLeftImage.Bounds().Dy()
 	g.characters = append(g.characters, &Character{
-		image: gopherLeftImage,
-		pX:    rand.Intn(ScreenWidth - w),
-		pY:    rand.Intn(ScreenHeight - h),
+		leftImage:  gopherLeftImage,
+		rightImage: gopherRightImage,
+		pX:         rand.Intn(ScreenWidth - w),
+		pY:         rand.Intn(ScreenHeight - h),
 	})
 	g.strokes = map[*Stroke]struct{}{}
 
@@ -201,12 +195,12 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 		if _, ok := draggingCharacters[s]; ok {
 			continue
 		}
-		s.Draw(screen, 0, 0, 1)
+		s.Draw(screen, 0, 0, g.dir, 1)
 	}
 	for s := range g.strokes {
 		dx, dy := s.PositionDiff()
 		if character := s.DraggingObject().(*Character); character != nil {
-			character.Draw(screen, dx, dy, 0.5)
+			character.Draw(screen, dx, dy, g.dir, 0.5)
 		}
 	}
 
