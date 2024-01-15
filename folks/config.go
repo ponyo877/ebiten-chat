@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	resources "github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"golang.org/x/image/font"
 )
 
 var FlagCRT = flag.Bool("crt", false, "enable the CRT effect")
@@ -33,6 +34,7 @@ var (
 	gopherImage      *ebiten.Image
 	tilesImage       *ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
+	mplusNormalFont  font.Face
 )
 
 func init() {
@@ -50,7 +52,7 @@ func init() {
 }
 
 func init() {
-	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.PressStart2P_ttf))
+	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)
 	}
