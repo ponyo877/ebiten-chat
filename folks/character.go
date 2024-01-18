@@ -16,27 +16,26 @@ const (
 type Character struct {
 	leftImage  *ebiten.Image
 	rightImage *ebiten.Image
-	pX         int
-	pY         int
-	dir        Dir
+	x          int
+	y          int
 }
 
-func NewCharacter(leftImage, rightImage *ebiten.Image) *Character {
+func NewCharacter(leftImage, rightImage *ebiten.Image, x, y int) *Character {
 	return &Character{
 		leftImage:  leftImage,
 		rightImage: rightImage,
-		pX:         0,
-		pY:         0,
+		x:          x,
+		y:          y,
 	}
 }
 
 func (c *Character) Point() (int, int) {
-	return c.pX, c.pY
+	return c.x, c.y
 }
 
 func (c *Character) Move(x, y int) {
-	c.pX = x
-	c.pY = y
+	c.x = x
+	c.y = y
 }
 
 // In returns true if (x, y) is in the sprite, and false otherwise.
@@ -47,26 +46,26 @@ func (c *Character) In(x, y int) bool {
 	// Note that this is not a good manner to use At for logic
 	// since color from At might include some errors on some machinec.
 	// As this is not so important logic, it's ok to use it so far.
-	return c.leftImage.At(x-c.pX, y-c.pY).(color.RGBA).A > 0
+	return c.leftImage.At(x-c.x, y-c.y).(color.RGBA).A > 0
 }
 
 // MoveBy moves the sprite by (x, y).
 func (c *Character) MoveBy(x, y int) {
 	w, h := c.leftImage.Bounds().Dx(), c.leftImage.Bounds().Dy()
 
-	c.pX += x
-	c.pY += y
-	if c.pX < 0 {
-		c.pX = 0
+	c.x += x
+	c.y += y
+	if c.x < 0 {
+		c.x = 0
 	}
-	if c.pX > ScreenWidth-w {
-		c.pX = ScreenWidth - w
+	if c.x > ScreenWidth-w {
+		c.x = ScreenWidth - w
 	}
-	if c.pY < 0 {
-		c.pY = 0
+	if c.y < 0 {
+		c.y = 0
 	}
-	if c.pY > ScreenHeight-h {
-		c.pY = ScreenHeight - h
+	if c.y > ScreenHeight-h {
+		c.y = ScreenHeight - h
 	}
 }
 
@@ -80,8 +79,8 @@ func (c *Character) dirImage(dir Dir) *ebiten.Image {
 // Draw draws the sprite.
 func (c *Character) Draw(screen *ebiten.Image, dx, dy int, dir Dir, alpha float32) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(c.pX+dx), float64(c.pY+dy))
+	op.Filter = ebiten.FilterLinear
+	op.GeoM.Translate(float64(c.x+dx), float64(c.y+dy))
 	op.ColorScale.ScaleAlpha(alpha)
-	screen.DrawImage(c.dirImage(dir), op)
 	screen.DrawImage(c.dirImage(dir), op)
 }

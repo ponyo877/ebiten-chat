@@ -7,9 +7,9 @@ type Stroke struct {
 	initX int
 	initY int
 
-	// currentX and currentY represents the current position
-	currentX int
-	currentY int
+	// x and y represents the current position
+	x int
+	y int
 
 	released bool
 
@@ -21,11 +21,11 @@ type Stroke struct {
 func NewStroke(source StrokeSource) *Stroke {
 	cx, cy := source.Position()
 	return &Stroke{
-		source:   source,
-		initX:    cx,
-		initY:    cy,
-		currentX: cx,
-		currentY: cy,
+		source: source,
+		initX:  cx,
+		initY:  cy,
+		x:      cx,
+		y:      cy,
 	}
 }
 
@@ -37,9 +37,7 @@ func (s *Stroke) Update() {
 		s.released = true
 		return
 	}
-	x, y := s.source.Position()
-	s.currentX = x
-	s.currentY = y
+	s.x, s.y = s.source.Position()
 }
 
 func (s *Stroke) IsReleased() bool {
@@ -47,12 +45,12 @@ func (s *Stroke) IsReleased() bool {
 }
 
 func (s *Stroke) Position() (int, int) {
-	return s.currentX, s.currentY
+	return s.x, s.y
 }
 
 func (s *Stroke) PositionDiff() (int, int) {
-	dx := s.currentX - s.initX
-	dy := s.currentY - s.initY
+	dx := s.x - s.initX
+	dy := s.y - s.initY
 	return dx, dy
 }
 

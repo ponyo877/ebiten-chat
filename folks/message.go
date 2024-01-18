@@ -3,7 +3,7 @@ package folks
 import "time"
 
 var (
-	lifespan int64 = 10000000 // 10 seconds
+	lifespan int64 = 3000
 )
 
 type Message struct {
@@ -30,11 +30,11 @@ func (m *Message) Size() float32 {
 	return float32(len(m.content))
 }
 
-func (m *Message) ElapsedMicro(now time.Time) int64 {
-	return now.UnixMicro() - m.createdAt.UnixMicro()
+func (m *Message) ElapsedMilli(now time.Time) int64 {
+	return now.UnixMilli() - m.createdAt.UnixMilli()
 }
 
 // IsExpired returns true if the Message is expired
 func (m *Message) IsExpired(now time.Time) bool {
-	return m.ElapsedMicro(now) > lifespan
+	return m.ElapsedMilli(now) > lifespan
 }

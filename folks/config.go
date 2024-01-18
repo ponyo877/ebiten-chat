@@ -46,9 +46,6 @@ func init() {
 		log.Fatal(err)
 	}
 	gopherRightImage = ebiten.NewImageFromImage(img)
-}
-
-func init() {
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)
