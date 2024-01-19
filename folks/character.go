@@ -4,33 +4,35 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-)
-
-type Dir int
-
-const (
-	DirLeft Dir = iota
-	DirRight
+	"github.com/ponyo877/folks-ui/entity"
 )
 
 type Character struct {
+	id         string
 	leftImage  *ebiten.Image
 	rightImage *ebiten.Image
 	x          int
 	y          int
+	dir        entity.Dir
 }
 
-func NewCharacter(leftImage, rightImage *ebiten.Image, x, y int) *Character {
+func NewCharacter(id string, leftImage, rightImage *ebiten.Image, x, y int, dir entity.Dir) *Character {
 	return &Character{
+		id:         id,
 		leftImage:  leftImage,
 		rightImage: rightImage,
 		x:          x,
 		y:          y,
+		dir:        dir,
 	}
 }
 
 func (c *Character) Point() (int, int) {
 	return c.x, c.y
+}
+
+func (c *Character) Dir() entity.Dir {
+	return c.dir
 }
 
 func (c *Character) Move(x, y int) {
@@ -69,18 +71,22 @@ func (c *Character) MoveBy(x, y int) {
 	}
 }
 
-func (c *Character) dirImage(dir Dir) *ebiten.Image {
-	if dir == DirRight {
-		return c.rightImage
+func (c *Character) IsMine(myID string) bool {
+	return c.id == myID
+}
+
+func (c *Character) dirImage() *ebiten.Image {
+	if c.dir == entity.DirLeft {
+		return c.leftImage
 	}
-	return c.leftImage
+	return c.rightImage
 }
 
 // Draw draws the sprite.
-func (c *Character) Draw(screen *ebiten.Image, dx, dy int, dir Dir, alpha float32) {
+func (c *Character) Draw(screen *ebiten.Image, dx, dy int, alpha float32) {
 	op := &ebiten.DrawImageOptions{}
 	op.Filter = ebiten.FilterLinear
 	op.GeoM.Translate(float64(c.x+dx), float64(c.y+dy))
 	op.ColorScale.ScaleAlpha(alpha)
-	screen.DrawImage(c.dirImage(dir), op)
+	screen.DrawImage(c.dirImage(), op)
 }

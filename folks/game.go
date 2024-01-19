@@ -8,18 +8,22 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/ponyo877/folks-ui/entity"
+	"github.com/ponyo877/folks-ui/websocket"
 )
 
 type Game struct {
+	wss        *websocket.WebSocket
+	id         string
 	x          int
 	y          int
 	now        time.Time
-	dir        Dir
 	messages   []*Message
-	characters []*Character
+	characters map[string]*Character
 	strokes    map[*Stroke]struct{}
 	touchIDs   []ebiten.TouchID
 	textField  *TextField
@@ -35,16 +39,42 @@ func NewGame(crt bool) ebiten.Game {
 }
 
 func (g *Game) init() {
-	g.dir = DirRight
+	g.wss, _ = websocket.NewWebSocket("localhost:8080", "/v1/socket")
+	go g.wss.Receive(func(message *entity.Message) {
+		id := message.Body().ID()
+		switch message.MessageType() {
+		case "move":
+			g.characters[id] = NewCharacter(
+				id,
+				gopherLeftImage,
+				gopherRightImage,
+				message.Body().X(),
+				message.Body().Y(),
+				message.Body().Dir(),
+			)
+		case "say":
+			message, _ := NewMessage(message.Body().Text())
+			g.messages = append(g.messages, message)
+		}
+	})
+	uuid, _ := uuid.NewRandom()
+	g.id = uuid.String()
+	g.strokes = map[*Stroke]struct{}{}
 
 	w, h := gopherLeftImage.Bounds().Dx(), gopherLeftImage.Bounds().Dy()
-	g.characters = append(g.characters, NewCharacter(
+	g.characters = map[string]*Character{}
+	x, y, dir := rand.Intn(ScreenWidth-w), rand.Intn(ScreenHeight-h), entity.DirRight
+	g.characters[g.id] = NewCharacter(
+		g.id,
 		gopherLeftImage,
 		gopherRightImage,
-		rand.Intn(ScreenWidth-w),
-		rand.Intn(ScreenHeight-h),
-	))
-	g.strokes = map[*Stroke]struct{}{}
+		x,
+		y,
+		dir,
+	)
+	g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+	fmt.Printf("g.id: %v\n", g.id)
+	fmt.Printf("g.characters[g.id]: %v\n", g.characters[g.id])
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -56,11 +86,17 @@ func (g *Game) Update() error {
 	g.now = time.Now()
 
 	// character direction
+	dir := entity.DirUnknown
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.dir = DirRight
+		dir = entity.DirRight
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.dir = DirLeft
+		dir = entity.DirLeft
+	}
+	if dir != entity.DirUnknown {
+		fmt.Printf("dir: %v\n", dir)
+		x, y := g.characters[g.id].Point()
+		g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 	}
 
 	// message
@@ -81,6 +117,7 @@ func (g *Game) Update() error {
 		g.textField.Clear()
 		message, _ := NewMessage(text)
 		g.messages = append(g.messages, message)
+		g.wss.Send(entity.NewMessage("say", entity.NewSayBody(g.id, message.Content())))
 	}
 	if g.textField == nil {
 		pX := 16
@@ -112,6 +149,9 @@ func (g *Game) Update() error {
 	for s := range g.strokes {
 		g.updateStroke(s)
 		if s.IsReleased() {
+			x, y := s.Position()
+			dir := g.characters[g.id].Dir()
+			g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 			delete(g.strokes, s)
 		}
 	}
@@ -138,12 +178,12 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 		if _, ok := draggingCharacters[c]; ok {
 			continue
 		}
-		c.Draw(screen, 0, 0, g.dir, 1)
+		c.Draw(screen, 0, 0, 1)
 	}
 	for s := range g.strokes {
 		dx, dy := s.PositionDiff()
 		if c := s.DraggingObject().(*Character); c != nil {
-			c.Draw(screen, dx, dy, g.dir, 0.5)
+			c.Draw(screen, dx, dy, 0.5)
 		}
 	}
 
@@ -165,7 +205,7 @@ func (g *Game) characterAt(x, y int) *Character {
 	// As the characters are ordered from back to front,
 	// search the clicked/touched character in reverse order.
 	for _, c := range g.characters {
-		if c.In(x, y) {
+		if c.In(x, y) && c.IsMine(g.id) {
 			return c
 		}
 	}
@@ -184,18 +224,5 @@ func (g *Game) updateStroke(stroke *Stroke) {
 	}
 
 	c.MoveBy(stroke.PositionDiff())
-
-	index := -1
-	for i, cc := range g.characters {
-		if cc == c {
-			index = i
-			break
-		}
-	}
-
-	// Move the dragged character to the front.
-	g.characters = append(g.characters[:index], g.characters[index+1:]...)
-	g.characters = append(g.characters, c)
-
 	stroke.SetDraggingObject(nil)
 }
