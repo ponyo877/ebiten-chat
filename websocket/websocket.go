@@ -1,11 +1,13 @@
 package websocket
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
-	"github.com/gorilla/websocket"
 	"github.com/ponyo877/folks-ui/entity"
+	"nhooyr.io/websocket" // wasm対応のためgorilla/websockeから変更
+	"nhooyr.io/websocket/wsjson"
 )
 
 type WebSocket struct {
@@ -14,23 +16,22 @@ type WebSocket struct {
 
 func NewWebSocket(host, path string) (*WebSocket, error) {
 	u := url.URL{Scheme: "wss", Host: host, Path: path}
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	conn, _, err := websocket.Dial(context.Background(), u.String(), nil)
 	if err != nil {
 		fmt.Printf("Websocketサーバへの接続に失敗しました: %v\n", err)
 		return nil, err
 	}
-	// defer conn.Close()
 	return &WebSocket{conn: conn}, nil
 }
 
 func (w *WebSocket) Send(message *entity.Message) error {
-	return w.conn.WriteJSON(MarshalMessage(message))
+	return wsjson.Write(context.Background(), w.conn, MarshalMessage(message))
 }
 
 func (w *WebSocket) Receive(f func(*entity.Message)) {
 	var messagePresenter MessagePresenter
 	for {
-		if err := w.conn.ReadJSON(&messagePresenter); err != nil {
+		if err := wsjson.Read(context.Background(), w.conn, &messagePresenter); err != nil {
 			fmt.Printf("Messageの読み込みに失敗しました: %v\n", err)
 			return
 		}
