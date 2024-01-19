@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"math/rand"
 	"slices"
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -169,7 +170,13 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 		}
 	}
 
-	for _, c := range g.characters {
+	keys := make([]string, 0)
+	for k := range g.characters {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		c := g.characters[k]
 		if _, ok := draggingCharacters[c]; ok {
 			continue
 		}
