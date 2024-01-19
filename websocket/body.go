@@ -28,13 +28,6 @@ func NewMoveBodyPresenter(body *entity.Body) *BodyPresenter {
 	}
 }
 
-// func NewDirBodyPresenter(body *entity.Body) *BodyPresenter {
-// 	return &BodyPresenter{
-// 		ID:  body.ID(),
-// 		Dir: int(body.Dir()),
-// 	}
-// }
-
 func NewLeaveBodyPresenter(body *entity.Body) *BodyPresenter {
 	return &BodyPresenter{
 		ID: body.ID(),

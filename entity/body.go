@@ -24,13 +24,6 @@ func NewMoveBody(id string, x, y int, dir Dir) *Body {
 	}
 }
 
-// func NewDirBody(id string, dir Dir) *Body {
-// 	return &Body{
-// 		id:  id,
-// 		dir: Dir(dir),
-// 	}
-// }
-
 func NewLeaveBody(id string) *Body {
 	return &Body{
 		id: id,
