@@ -19,6 +19,8 @@ var FlagCRT = flag.Bool("crt", false, "enable the CRT effect")
 const (
 	ScreenWidth      = 640
 	ScreenHeight     = 480
+	TextFieldHeight  = 24
+	TextFieldPadding = 16
 	tileSize         = 32
 	titleFontSize    = fontSize * 1.5
 	fontSize         = 24

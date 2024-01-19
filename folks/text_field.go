@@ -281,9 +281,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	text.Draw(screen, shownText, fontFace, op)
 }
 
-const textFieldHeight = 24
-
 func textFieldPadding() (int, int) {
 	m := fontFace.Metrics()
-	return 4, (textFieldHeight - int(m.HLineGap+m.HAscent+m.HDescent)) / 2
+	return 4, (TextFieldHeight - int(m.HLineGap+m.HAscent+m.HDescent)) / 2
 }

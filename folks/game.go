@@ -53,7 +53,7 @@ func (g *Game) init() {
 				message.Body().Dir(),
 			)
 		case "say":
-			message, _ := NewMessage(message.Body().Text())
+			message, _ := NewMessage(id, message.Body().Text())
 			g.messages = append(g.messages, message)
 		}
 	})
@@ -73,8 +73,6 @@ func (g *Game) init() {
 		dir,
 	)
 	g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
-	fmt.Printf("g.id: %v\n", g.id)
-	fmt.Printf("g.characters[g.id]: %v\n", g.characters[g.id])
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -94,7 +92,6 @@ func (g *Game) Update() error {
 		dir = entity.DirLeft
 	}
 	if dir != entity.DirUnknown {
-		fmt.Printf("dir: %v\n", dir)
 		x, y := g.characters[g.id].Point()
 		g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 	}
@@ -115,14 +112,12 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		text := g.textField.Text()
 		g.textField.Clear()
-		message, _ := NewMessage(text)
-		g.messages = append(g.messages, message)
-		g.wss.Send(entity.NewMessage("say", entity.NewSayBody(g.id, message.Content())))
+		g.wss.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text)))
 	}
 	if g.textField == nil {
-		pX := 16
-		pY := ScreenHeight - pX - textFieldHeight
-		g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+textFieldHeight), false)
+		pX := TextFieldPadding
+		pY := ScreenHeight - TextFieldPadding - TextFieldHeight
+		g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+TextFieldHeight), false)
 	}
 	g.textField.Update()
 	if g.textField.Contains(g.x, g.y) {
@@ -189,10 +184,12 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 
 	// SpeechBubble
 	for _, character := range g.characters {
-		gopherX, gopherY := character.Point()
+		x, y := character.Point()
 		for _, message := range g.messages {
-			speechBubble, _ := NewSpeechBubble(message, gopherX, gopherY)
-			speechBubble.Draw(screen, g.now)
+			if character.IsMine(message.CharacterID()) {
+				speechBubble, _ := NewSpeechBubble(message, x, y)
+				speechBubble.Draw(screen, g.now)
+			}
 		}
 	}
 }

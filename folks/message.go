@@ -7,17 +7,24 @@ var (
 )
 
 type Message struct {
-	content   string
-	createdAt time.Time
+	characterID string
+	content     string
+	createdAt   time.Time
 }
 
 // NewMessage creates a new Message
-func NewMessage(content string) (*Message, error) {
+func NewMessage(characterID, content string) (*Message, error) {
 	createdAt := time.Now()
 	return &Message{
+		characterID,
 		content,
 		createdAt,
 	}, nil
+}
+
+// CharacterID returns the characterID of the Message
+func (m *Message) CharacterID() string {
+	return m.characterID
 }
 
 // Content returns the content of the Message
