@@ -40,7 +40,10 @@ func NewGame(crt bool) ebiten.Game {
 }
 
 func (g *Game) init() {
-	g.wss, _ = websocket.NewWebSocket("localhost:8080", "/v1/socket")
+	var err error
+	if g.wss, err = websocket.NewWebSocket("folks-chat.com", "/v1/socket"); err != nil {
+		fmt.Printf("failed to connect to websocket: %v\n", err)
+	}
 	go g.wss.Receive(func(message *entity.Message) {
 		id := message.Body().ID()
 		switch message.MessageType() {

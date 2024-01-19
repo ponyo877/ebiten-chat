@@ -13,7 +13,7 @@ type WebSocket struct {
 }
 
 func NewWebSocket(host, path string) (*WebSocket, error) {
-	u := url.URL{Scheme: "ws", Host: host, Path: path}
+	u := url.URL{Scheme: "wss", Host: host, Path: path}
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		fmt.Printf("Websocketサーバへの接続に失敗しました: %v\n", err)
@@ -35,7 +35,5 @@ func (w *WebSocket) Receive(f func(*entity.Message)) {
 			return
 		}
 		f(messagePresenter.Unmarshal())
-		// websocket.JSON.Receive(ws, &rcvMsg)
-		// log.Printf("Receive data=%#v\n", rcvMsg)
 	}
 }
