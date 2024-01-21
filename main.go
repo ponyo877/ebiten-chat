@@ -19,7 +19,11 @@ func main() {
 	ebiten.SetWindowSize(folks.ScreenWidth, folks.ScreenHeight)
 	ebiten.SetWindowTitle("Ebiten Chat")
 	ebiten.SetWindowTitle(response.Message)
-	if err := ebiten.RunGame(folks.NewGame(*folks.FlagCRT)); err != nil {
+	game := folks.NewGame()
+	if err := ebiten.RunGame(game); err != nil {
+		panic(err)
+	}
+	if err := game.Exit(); err != nil {
 		panic(err)
 	}
 }

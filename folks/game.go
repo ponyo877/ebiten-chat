@@ -30,12 +30,12 @@ type Game struct {
 	textField  *TextField
 }
 
-func NewGame(crt bool) ebiten.Game {
+func NewGame() *Game {
 	g := &Game{}
 	g.init()
-	if crt {
-		return &GameWithCRTEffect{Game: g}
-	}
+	// if crt {
+	// 	return &GameWithCRTEffect{Game: g}
+	// }
 	return g
 }
 
@@ -59,6 +59,8 @@ func (g *Game) init() {
 		case "say":
 			message, _ := NewMessage(id, message.Body().Text())
 			g.messages = append(g.messages, message)
+		case "leave":
+			delete(g.characters, id)
 		}
 	})
 	uuid, _ := uuid.NewRandom()
@@ -77,6 +79,11 @@ func (g *Game) init() {
 		dir,
 	)
 	g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+}
+
+func (g *Game) Exit() error {
+	g.wss.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id)))
+	return nil
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
