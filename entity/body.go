@@ -1,11 +1,12 @@
 package entity
 
 type Body struct {
-	id   string
-	x    int
-	y    int
-	dir  Dir
-	text string
+	id    string
+	x     int
+	y     int
+	dir   Dir
+	text  string
+	users []*User
 }
 
 func NewSayBody(id string, text string) *Body {
@@ -21,6 +22,12 @@ func NewMoveBody(id string, x, y int, dir Dir) *Body {
 		x:   x,
 		y:   y,
 		dir: dir,
+	}
+}
+
+func NewEnterBody(users []*User) *Body {
+	return &Body{
+		users: users,
 	}
 }
 
@@ -48,4 +55,8 @@ func (b *Body) Dir() Dir {
 
 func (b *Body) Text() string {
 	return b.text
+}
+
+func (b *Body) Users() []*User {
+	return b.users
 }

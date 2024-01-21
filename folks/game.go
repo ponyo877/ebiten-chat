@@ -41,12 +41,24 @@ func NewGame() *Game {
 
 func (g *Game) init() {
 	var err error
+	// if g.wss, err = websocket.NewWebSocket("localhost:8000", "/v1/socket"); err != nil {
 	if g.wss, err = websocket.NewWebSocket("folks-chat.com", "/v1/socket"); err != nil {
 		fmt.Printf("failed to connect to websocket: %v\n", err)
 	}
 	go g.wss.Receive(func(message *entity.Message) {
 		id := message.Body().ID()
 		switch message.MessageType() {
+		case "enter":
+			for _, user := range message.Body().Users() {
+				g.characters[user.ID()] = NewCharacter(
+					user.ID(),
+					gopherLeftImage,
+					gopherRightImage,
+					user.X(),
+					user.Y(),
+					user.Dir(),
+				)
+			}
 		case "move":
 			g.characters[id] = NewCharacter(
 				id,
@@ -57,7 +69,8 @@ func (g *Game) init() {
 				message.Body().Dir(),
 			)
 		case "say":
-			message, _ := NewMessage(id, message.Body().Text())
+			// ブラウザでの表示バグの暫定対処のために先頭にスペースを追加
+			message, _ := NewMessage(id, " "+message.Body().Text())
 			g.messages = append(g.messages, message)
 		case "leave":
 			delete(g.characters, id)
@@ -78,6 +91,7 @@ func (g *Game) init() {
 		y,
 		dir,
 	)
+	g.wss.Send(entity.NewMessage("enter", nil))
 	g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 }
 

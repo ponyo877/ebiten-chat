@@ -8,7 +8,7 @@ import (
 
 // MessagePresenter
 type MessagePresenter struct {
-	MessageType string         `json:"messageType"` // say, move, leave
+	MessageType string         `json:"messageType"` // say, move, enter, leave
 	Body        *BodyPresenter `json:"body"`
 	CreatedAt   time.Time      `json:"createdAt"`
 }
