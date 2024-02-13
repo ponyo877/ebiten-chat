@@ -28,6 +28,19 @@ func (w *WebSocket) Send(message *entity.Message) error {
 	return wsjson.Write(context.Background(), w.conn, MarshalMessage(message))
 }
 
+func (w *WebSocket) Candidate(ICECandidate []byte) error {
+	signal := NewSignal("candidate", ICECandidate)
+	if err := wsjson.Write(context.Background(), w.conn, signal); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (w *WebSocket) ReadMessage() ([]byte, error) {
+	_, bin, err := w.conn.Read(context.Background())
+	return bin, err
+}
+
 func (w *WebSocket) Receive(f func(*entity.Message)) {
 	var messagePresenter MessagePresenter
 	for {
