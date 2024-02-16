@@ -93,8 +93,10 @@ func (w *WebConnection) candidate(ICECandidate []byte) error {
 }
 
 func (w *WebConnection) answer(answer webrtc.SessionDescription) error {
-	// TODO answerをJSON化する
-	signalPresenter := NewSignalPresenter("answer", answer.Unmarshal())
+	signalPresenter, err := NewSignalPresenter("answer", answer)
+	if err != nil {
+		return err
+	}
 	if err := wsjson.Write(context.Background(), w.wcon, signalPresenter); err != nil {
 		return err
 	}

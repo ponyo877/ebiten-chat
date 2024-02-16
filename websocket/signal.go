@@ -3,6 +3,7 @@ package websocket
 import (
 	"encoding/json"
 
+	"github.com/pion/webrtc/v3"
 	"github.com/ponyo877/folks-ui/entity"
 )
 
@@ -11,11 +12,15 @@ type SignalPresenter struct {
 	Data  string `json:"data"`
 }
 
-func NewSignalPresenter(event string, data string) *SignalPresenter {
+func NewSignalPresenter(event string, data webrtc.SessionDescription) (*SignalPresenter, error) {
+	v, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
 	return &SignalPresenter{
 		Event: event,
-		Data:  data,
-	}
+		Data:  string(v),
+	}, nil
 }
 
 func UnmarshalSignal(data []byte) (*entity.Signal, error) {
