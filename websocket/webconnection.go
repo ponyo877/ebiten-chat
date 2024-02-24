@@ -85,7 +85,10 @@ func (w *WebConnection) Send(message *entity.Message) error {
 }
 
 func (w *WebConnection) candidate(ICECandidate []byte) error {
-	signalPresenter := NewSignalPresenter("candidate", string(ICECandidate))
+	signalPresenter, err := NewSignalPresenter("candidate", ICECandidate)
+	if err != nil {
+		return err
+	}
 	if err := wsjson.Write(context.Background(), w.wcon, signalPresenter); err != nil {
 		return err
 	}
@@ -93,11 +96,7 @@ func (w *WebConnection) candidate(ICECandidate []byte) error {
 }
 
 func (w *WebConnection) answer(answer webrtc.SessionDescription) error {
-	signalPresenter, err := NewSignalPresenter("answer", answer)
-	if err != nil {
-		return err
-	}
-	if err := wsjson.Write(context.Background(), w.wcon, signalPresenter); err != nil {
+	if err := wsjson.Write(context.Background(), w.wcon, answer); err != nil {
 		return err
 	}
 	return nil
@@ -197,10 +196,12 @@ func (w *WebConnection) Something() {
 	}
 
 	// signalingServer.send(JSON.stringify({ event: 'answer', data: JSON.stringify(answer) }));
-	w.
+	if err := w.answer(answer); err != nil {
+		panic(err)
+	}
 
-		// Create channel that is blocked until ICE Gathering is complete
-		gatherComplete := webrtc.GatheringCompletePromise(w.pcon)
+	// Create channel that is blocked until ICE Gathering is complete
+	gatherComplete := webrtc.GatheringCompletePromise(w.pcon)
 
 	// Sets the LocalDescription, and starts our UDP listeners
 	if err := w.pcon.SetLocalDescription(answer); err != nil {
