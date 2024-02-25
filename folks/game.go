@@ -18,7 +18,7 @@ import (
 )
 
 type Game struct {
-	wss        *websocket.WebSocket
+	webc       *websocket.WebConnection
 	id         string
 	x          int
 	y          int
@@ -41,11 +41,12 @@ func NewGame() *Game {
 
 func (g *Game) init() {
 	var err error
-	// if g.wss, err = websocket.NewWebSocket("localhost:8000", "/v1/socket"); err != nil {
-	if g.wss, err = websocket.NewWebSocket("folks-chat.com", "/v1/socket"); err != nil {
+	// if g.webc, err = websocket.NewWebSocket("localhost:8000", "/v1/socket"); err != nil {
+	if g.webc, err = websocket.NewWebConnection("folks-chat.com", "/v1/socket"); err != nil {
 		fmt.Printf("failed to connect to websocket: %v\n", err)
 	}
-	go g.wss.Receive(func(message *entity.Message) {
+	go g.syncWebRTC()
+	go g.webc.Receive(func(message *entity.Message) {
 		id := message.Body().ID()
 		switch message.MessageType() {
 		case "enter":
@@ -91,12 +92,12 @@ func (g *Game) init() {
 		y,
 		dir,
 	)
-	g.wss.Send(entity.NewMessage("enter", nil))
-	g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+	g.webc.Send(entity.NewMessage("enter", nil))
+	g.webc.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 }
 
 func (g *Game) Exit() error {
-	g.wss.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id)))
+	g.webc.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id)))
 	return nil
 }
 
@@ -118,7 +119,7 @@ func (g *Game) Update() error {
 	}
 	if dir != entity.DirUnknown {
 		x, y := g.characters[g.id].Point()
-		g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+		g.webc.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 	}
 
 	// message
@@ -137,7 +138,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		text := g.textField.Text()
 		g.textField.Clear()
-		g.wss.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text)))
+		g.webc.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text)))
 	}
 	if g.textField == nil {
 		pX := TextFieldPadding
@@ -171,7 +172,7 @@ func (g *Game) Update() error {
 		if s.IsReleased() {
 			x, y := s.Position()
 			dir := g.characters[g.id].Dir()
-			g.wss.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+			g.webc.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 			delete(g.strokes, s)
 		}
 	}
