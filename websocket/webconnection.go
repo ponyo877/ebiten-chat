@@ -9,7 +9,7 @@ import (
 
 	"github.com/pion/mediadevices"
 	"github.com/pion/mediadevices/pkg/codec/opus"
-	"github.com/pion/mediadevices/pkg/frame"
+	_ "github.com/pion/mediadevices/pkg/driver/microphone"
 	"github.com/pion/mediadevices/pkg/prop"
 	"github.com/pion/webrtc/v3"
 	"github.com/ponyo877/folks-ui/entity"
@@ -52,11 +52,10 @@ func NewWebConnection(host, path string) (*WebConnection, error) {
 	}
 	s, err := mediadevices.GetUserMedia(mediadevices.MediaStreamConstraints{
 		Video: func(c *mediadevices.MediaTrackConstraints) {
-			c.FrameFormat = prop.FrameFormat(frame.FormatI420)
-			c.Width = prop.Int(640)
-			c.Height = prop.Int(480)
 		},
 		Audio: func(c *mediadevices.MediaTrackConstraints) {
+			c.SampleRate = prop.Int(48000)
+			c.ChannelCount = prop.Int(2)
 		},
 		Codec: codecSelector,
 	})

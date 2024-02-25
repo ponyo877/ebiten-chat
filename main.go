@@ -7,7 +7,6 @@ import (
 	_ "embed"
 	"flag"
 	_ "image/png"
-	"syscall/js"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/ponyo877/folks-ui/folks"
@@ -18,8 +17,8 @@ type Response struct {
 }
 
 func main() {
-	var onBeforeunload js.Func
-	defer onBeforeunload.Release()
+	// var onBeforeunload js.Func
+	// defer onBeforeunload.Release()
 
 	response := Response{}
 	flag.Parse()
@@ -29,11 +28,11 @@ func main() {
 	game := folks.NewGame()
 
 	// ブラウザを閉じた時の処理
-	onBeforeunload = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		game.Exit()
-		return nil
-	})
-	js.Global().Call("addEventListener", "beforeunload", onBeforeunload)
+	// onBeforeunload = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	// 	game.Exit()
+	// 	return nil
+	// })
+	// js.Global().Call("addEventListener", "beforeunload", onBeforeunload)
 
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)

@@ -14,6 +14,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/ebitengine/purego v0.6.0-alpha.2 // indirect
+	github.com/gen2brain/malgo v0.11.21 // indirect
 	github.com/go-text/typesetting v0.0.0-20231221124458-48cc05a56658 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/pion/datachannel v1.5.5 // indirect
