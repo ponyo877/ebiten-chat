@@ -13,27 +13,27 @@ import (
 	"github.com/ponyo877/folks-ui/folks"
 )
 
-type Response struct {
-	Message string `json:"message"`
-}
+var (
+	wsScheme string
+	wsHost   string
+)
 
 func main() {
 	var onBeforeunload js.Func
 	defer onBeforeunload.Release()
+	window := js.Global()
 
-	response := Response{}
 	flag.Parse()
 	ebiten.SetWindowSize(folks.ScreenWidth, folks.ScreenHeight)
 	ebiten.SetWindowTitle("Ebiten Chat")
-	ebiten.SetWindowTitle(response.Message)
-	game := folks.NewGame()
+	game := folks.NewGame(wsScheme, wsHost)
 
 	// ブラウザを閉じた時の処理
 	onBeforeunload = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		game.Exit()
 		return nil
 	})
-	js.Global().Call("addEventListener", "beforeunload", onBeforeunload)
+	window.Call("addEventListener", "beforeunload", onBeforeunload)
 
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)

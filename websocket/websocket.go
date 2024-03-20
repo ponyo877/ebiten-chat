@@ -14,8 +14,8 @@ type WebSocket struct {
 	conn *websocket.Conn
 }
 
-func NewWebSocket(host, path string) (*WebSocket, error) {
-	u := url.URL{Scheme: "wss", Host: host, Path: path}
+func NewWebSocket(scheme, host, path string) (*WebSocket, error) {
+	u := url.URL{Scheme: scheme, Host: host, Path: path}
 	conn, _, err := websocket.Dial(context.Background(), u.String(), nil)
 	if err != nil {
 		fmt.Printf("Websocketサーバへの接続に失敗しました: %v\n", err)
