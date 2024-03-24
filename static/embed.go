@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package flappy
+package static
 
 import (
 	_ "embed"
 )
 
 var (
-	//go:embed gopher_LEFT.png
-	Gopher_Left_png []byte
-
-	//go:embed gopher_RIGHT.png
-	Gopher_Right_png []byte
+	//go:embed 00.png
+	Image00 []byte
 )

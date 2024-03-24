@@ -8,8 +8,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	resources "github.com/ponyo877/folks-ui/static"
 )
@@ -32,22 +32,25 @@ const (
 )
 
 var (
-	gopherLeftImage  *ebiten.Image
-	gopherRightImage *ebiten.Image
+	characterImage []*ebiten.Image
+	// gopherRightImage *ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
 )
 
 func init() {
-	img, _, err := image.Decode(bytes.NewReader(resources.Gopher_Left_png))
+	imageCount := 20
+	characterImage = make([]*ebiten.Image, imageCount, imageCount)
+	img, _, err := image.Decode(bytes.NewReader(resources.Image00))
+	// img, _, err := image.Decode(bytes.NewReader(resources.Gopher_Left_png))
 	if err != nil {
 		log.Fatal(err)
 	}
-	gopherLeftImage = ebiten.NewImageFromImage(img)
-	img, _, err = image.Decode(bytes.NewReader(resources.Gopher_Right_png))
-	if err != nil {
-		log.Fatal(err)
-	}
-	gopherRightImage = ebiten.NewImageFromImage(img)
+	characterImage[0] = ebiten.NewImageFromImage(img)
+	// img, _, err = image.Decode(bytes.NewReader(resources.Gopher_Right_png))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// gopherRightImage = ebiten.NewImageFromImage(img)
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)

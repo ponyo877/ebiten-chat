@@ -5,6 +5,7 @@ go 1.21.4
 require (
 	github.com/google/uuid v1.5.0
 	github.com/hajimehoshi/bitmapfont/v3 v3.0.0
+	github.com/hajimehoshi/ebiten v1.12.12
 	github.com/hajimehoshi/ebiten/v2 v2.7.0-alpha.5
 	nhooyr.io/websocket v1.8.10
 )
