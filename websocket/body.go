@@ -29,13 +29,19 @@ func NewMoveBodyPresenter(body *entity.Body) *BodyPresenter {
 	}
 }
 
-func NewEnterBodyPresenter(body *entity.Body) *BodyPresenter {
+func NewEnterRespBodyPresenter(body *entity.Body) *BodyPresenter {
 	return &BodyPresenter{
 		Users: NewUsersPresenter(body.Users()),
 	}
 }
 
 func NewLeaveBodyPresenter(body *entity.Body) *BodyPresenter {
+	return &BodyPresenter{
+		ID: body.ID(),
+	}
+}
+
+func NewEnterReqBodyPresenter(body *entity.Body) *BodyPresenter {
 	return &BodyPresenter{
 		ID: body.ID(),
 	}
@@ -49,6 +55,8 @@ func NewBodyPresenter(messageType string, body *entity.Body) *BodyPresenter {
 		return NewMoveBodyPresenter(body)
 	case "leave":
 		return NewLeaveBodyPresenter(body)
+	case "enter":
+		return NewEnterReqBodyPresenter(body)
 	}
 	return nil
 }
@@ -65,13 +73,9 @@ func (b *BodyPresenter) Unmarshal(messageType string) *entity.Body {
 			user := entity.NewUser(userPresenter.ID, userPresenter.X, userPresenter.Y, entity.Dir(userPresenter.Dir))
 			users = append(users, user)
 		}
-		return entity.NewEnterBody(users)
+		return entity.NewEnterRespBody(users)
 	case "leave":
 		return entity.NewLeaveBody(b.ID)
 	}
 	return nil
-}
-
-func MarshalBody(messageType string, body *entity.Body) *BodyPresenter {
-	return NewBodyPresenter(messageType, body)
 }

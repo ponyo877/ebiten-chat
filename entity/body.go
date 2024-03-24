@@ -27,7 +27,13 @@ func NewMoveBody(id string, x, y int, dir Dir) *Body {
 	}
 }
 
-func NewEnterBody(users []*User) *Body {
+func NewEnterReqBody(id string) *Body {
+	return &Body{
+		id: id,
+	}
+}
+
+func NewEnterRespBody(users []*User) *Body {
 	return &Body{
 		users: users,
 	}

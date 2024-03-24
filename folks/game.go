@@ -89,7 +89,7 @@ func (g *Game) init() {
 		y,
 		dir,
 	)
-	g.ws.Send(entity.NewMessage("enter", nil))
+	g.ws.Send(entity.NewMessage("enter", entity.NewEnterReqBody(g.id)))
 	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
 }
 
