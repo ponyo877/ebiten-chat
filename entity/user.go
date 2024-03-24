@@ -1,5 +1,7 @@
 package entity
 
+import "hash/fnv"
+
 type User struct {
 	id  string
 	x   int
@@ -18,6 +20,12 @@ func NewUser(id string, x, y int, dir Dir) *User {
 
 func (u *User) ID() string {
 	return u.id
+}
+
+func (u *User) ImgIdx() int {
+	h := fnv.New32a()
+	h.Write([]byte(u.id))
+	return int(h.Sum32()) % 21
 }
 
 func (u *User) X() int {

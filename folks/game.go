@@ -53,7 +53,7 @@ func (g *Game) init() {
 			for _, user := range message.Body().Users() {
 				g.characters[user.ID()] = NewCharacter(
 					user.ID(),
-					characterImage[0],
+					characterImage[user.ImgIdx()],
 					user.X(),
 					user.Y(),
 					user.Dir(),
@@ -62,7 +62,7 @@ func (g *Game) init() {
 		case "move":
 			g.characters[id] = NewCharacter(
 				id,
-				characterImage[0],
+				characterImage[message.Body().ImgIdx()],
 				message.Body().X(),
 				message.Body().Y(),
 				message.Body().Dir(),

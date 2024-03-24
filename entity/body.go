@@ -1,5 +1,7 @@
 package entity
 
+import "hash/fnv"
+
 type Body struct {
 	id    string
 	x     int
@@ -39,6 +41,12 @@ func NewLeaveBody(id string) *Body {
 
 func (b *Body) ID() string {
 	return b.id
+}
+
+func (b *Body) ImgIdx() int {
+	h := fnv.New32a()
+	h.Write([]byte(b.id))
+	return int(h.Sum32()) % 21
 }
 
 func (b *Body) X() int {

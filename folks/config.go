@@ -38,19 +38,14 @@ var (
 )
 
 func init() {
-	imageCount := 20
-	characterImage = make([]*ebiten.Image, imageCount, imageCount)
-	img, _, err := image.Decode(bytes.NewReader(resources.Image00))
-	// img, _, err := image.Decode(bytes.NewReader(resources.Gopher_Left_png))
-	if err != nil {
-		log.Fatal(err)
+	characterImage = make([]*ebiten.Image, len(resources.Images))
+	for i, img := range resources.Images {
+		img, _, err := image.Decode(bytes.NewReader(img))
+		if err != nil {
+			log.Fatal(err)
+		}
+		characterImage[i] = ebiten.NewImageFromImage(img)
 	}
-	characterImage[0] = ebiten.NewImageFromImage(img)
-	// img, _, err = image.Decode(bytes.NewReader(resources.Gopher_Right_png))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// gopherRightImage = ebiten.NewImageFromImage(img)
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)
