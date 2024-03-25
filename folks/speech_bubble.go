@@ -18,9 +18,7 @@ type SpeechBubble struct {
 }
 
 var (
-	speechBubbleWidthUnit    float32 = 6.0
-	speechBubbleHeight       float32 = 20.0
-	speechBubbleAltitudeUnit float64 = 0.05
+	speechBubbleAltitudeUnit float64 = 0.03
 )
 
 // NewSpeechBubble creates a new SpeechBubble
@@ -36,20 +34,22 @@ func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, erro
 
 // Draw draws the SpeechBubble
 func (s *SpeechBubble) Draw(screen *ebiten.Image, now time.Time) {
-	speechBubbleWidth := speechBubbleWidthUnit * s.message.Size()
-	pX := s.x
-	pY := s.y - s.altitude(now)
-	vector.DrawFilledRect(screen, float32(pX), float32(pY), speechBubbleWidth, speechBubbleHeight, color.White, true)
-
-	// message over pangle
+	w, h := text.Measure(s.message.Content(), &text.GoTextFace{
+		Source: arcadeFaceSource,
+		Size:   fontSize,
+	}, fontSize)
+	pX := s.x - w/2
+	pY := s.y - h - s.altitude(now)
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(float64(pX), float64(pY))
 	op.ColorScale.ScaleWithColor(color.Black)
-	op.LineSpacing = smallFontSize
+	op.LineSpacing = fontSize
 	op.Filter = ebiten.FilterLinear
+
+	vector.DrawFilledRect(screen, float32(pX), float32(pY), float32(w), float32(h), color.White, true)
 	text.Draw(screen, s.message.Content(), &text.GoTextFace{
 		Source: arcadeFaceSource,
-		Size:   smallFontSize,
+		Size:   fontSize,
 	}, op)
 }
 

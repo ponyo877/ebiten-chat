@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	lifespan         int64 = 5000
+	lifespan         int64 = 10000
 	MaxContentLength int   = 20
 )
 
