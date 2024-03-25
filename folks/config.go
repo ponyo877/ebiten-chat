@@ -18,17 +18,18 @@ const (
 	ScreenHeight      = 700
 	MessageAreaPointX = ScreenWidth * 0.7
 	MessageAreaWidth  = ScreenWidth - MessageAreaPointX
-	TextFieldHeight   = 24
-	TextFieldPadding  = 16
-	fontSize          = 24
-	smallFontSize     = fontSize / 2
-	characterWidth    = 80
-	characterHeight   = 80
+	TextFieldPointY   = ScreenHeight * 0.95
+	TextFieldHeight   = ScreenHeight - TextFieldPointY
+	fontSize          = TextFieldHeight * 0.75
+	smallFontSize     = TextFieldHeight * 0.5
+	logFontSize       = smallFontSize * 0.8
 )
 
 var (
 	characterImage   []*ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
+	characterWidth   float64
+	characterHeight  float64
 )
 
 func init() {
@@ -40,6 +41,8 @@ func init() {
 		}
 		characterImage[i] = ebiten.NewImageFromImage(img)
 	}
+	characterWidth = float64(characterImage[0].Bounds().Dx())
+	characterHeight = float64(characterImage[0].Bounds().Dy())
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)

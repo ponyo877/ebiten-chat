@@ -18,7 +18,7 @@ type MessageArea struct {
 }
 
 var (
-	messageAreaHeight          float32     = smallFontSize*float32(maxMessagesCount) + 5
+	messageAreaHeight          float32     = logFontSize*float32(maxMessagesCount) + 5
 	messageAreaBackgroundColor color.Color = color.RGBA{0x22, 0x22, 0x22, 0x88}
 )
 
@@ -42,12 +42,12 @@ func (s *MessageArea) Draw(screen *ebiten.Image) {
 	for i, msg := range s.messages[len(s.messages)-limit:] {
 		op := &text.DrawOptions{}
 		op.ColorScale.ScaleWithColor(color.Gray16{0xffff})
-		op.LineSpacing = smallFontSize
+		op.LineSpacing = logFontSize
 		op.Filter = ebiten.FilterLinear
-		op.GeoM.Translate(s.x, s.y+float64(i)*smallFontSize)
+		op.GeoM.Translate(s.x, s.y+float64(i)*logFontSize)
 		text.Draw(screen, msg.Format(), &text.GoTextFace{
 			Source: arcadeFaceSource,
-			Size:   smallFontSize,
+			Size:   logFontSize,
 		}, op)
 	}
 }

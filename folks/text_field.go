@@ -21,7 +21,6 @@ var fontFace = text.NewStdFace(bitmapfont.FaceEA)
 
 type TextField struct {
 	bounds         image.Rectangle
-	multilines     bool
 	text           string
 	selectionStart int
 	selectionEnd   int
@@ -32,10 +31,9 @@ type TextField struct {
 	state textinput.State
 }
 
-func NewTextField(bounds image.Rectangle, multilines bool) *TextField {
+func NewTextField(bounds image.Rectangle) *TextField {
 	return &TextField{
-		bounds:     bounds,
-		multilines: multilines,
+		bounds: bounds,
 	}
 }
 
@@ -218,13 +216,11 @@ func (t *TextField) Update() {
 		t.selectionStart = t.selectionEnd
 	}
 
-	if !t.multilines {
-		orig := t.text
-		new := strings.ReplaceAll(orig, "\n", "")
-		if new != orig {
-			t.selectionStart -= strings.Count(orig[:t.selectionStart], "\n")
-			t.selectionEnd -= strings.Count(orig[:t.selectionEnd], "\n")
-		}
+	orig := t.text
+	new := strings.ReplaceAll(orig, "\n", "")
+	if new != orig {
+		t.selectionStart -= strings.Count(orig[:t.selectionStart], "\n")
+		t.selectionEnd -= strings.Count(orig[:t.selectionEnd], "\n")
 	}
 }
 
@@ -242,7 +238,10 @@ func (t *TextField) cursorPos() (int, int) {
 	if t.state.Text != "" {
 		txt += t.state.Text[:t.state.CompositionSelectionStartInBytes]
 	}
-	x := int(text.Advance(txt, fontFace))
+	x := int(text.Advance(txt, &text.GoTextFace{
+		Source: arcadeFaceSource,
+		Size:   smallFontSize,
+	}))
 	y := nlCount * int(fontFace.Metrics().HLineGap+fontFace.Metrics().HAscent+fontFace.Metrics().HDescent)
 	return x, y
 }
@@ -261,8 +260,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 		cx, cy := t.cursorPos()
 		x += px + cx
 		y += py + cy
-		h := int(fontFace.Metrics().HLineGap + fontFace.Metrics().HAscent + fontFace.Metrics().HDescent)
-		vector.StrokeLine(screen, float32(x), float32(y), float32(x), float32(y+h), 1, color.Black, false)
+		vector.StrokeLine(screen, float32(x), float32(y), float32(x), float32(y)+smallFontSize, 1, color.Black, false)
 	}
 
 	shownText := t.text
@@ -276,7 +274,10 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(float64(tx), float64(ty))
 	op.ColorScale.ScaleWithColor(color.Black)
 	op.LineSpacing = fontFace.Metrics().HLineGap + fontFace.Metrics().HAscent + fontFace.Metrics().HDescent
-	text.Draw(screen, shownText, fontFace, op)
+	text.Draw(screen, shownText, &text.GoTextFace{
+		Source: arcadeFaceSource,
+		Size:   smallFontSize,
+	}, op)
 }
 
 func textFieldPadding() (int, int) {

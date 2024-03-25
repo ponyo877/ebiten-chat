@@ -89,9 +89,7 @@ func (g *Game) init() {
 	g.characters = map[string]*Character{}
 	g.x, g.y, g.dir = rand.Intn(ScreenWidth-w), rand.Intn(ScreenHeight-h), entity.DirRight
 	g.messageArea = NewMessageArea(MessageAreaPointX, 0)
-	pX := TextFieldPadding
-	pY := ScreenHeight - TextFieldPadding - TextFieldHeight
-	g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+TextFieldHeight), false)
+	g.textField = NewTextField(image.Rect(0, TextFieldPointY, MessageAreaPointX, ScreenHeight))
 
 	g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
 	g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.dir), g.now))
@@ -148,10 +146,10 @@ func (g *Game) Update() error {
 		g.textField.Focus()
 		g.textField.SetSelectionStartByCursorPosition(g.x, g.y)
 		ebiten.SetCursorShape(ebiten.CursorShapeText)
-	} else {
-		g.textField.Blur()
-		ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+		return nil
 	}
+	g.textField.Blur()
+	ebiten.SetCursorShape(ebiten.CursorShapeDefault)
 
 	// Click & Touch
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
