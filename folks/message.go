@@ -9,7 +9,7 @@ import (
 
 var (
 	lifespan         int64 = 5000
-	maxContentLength int   = 100
+	maxContentLength int   = 20
 )
 
 type Message struct {

@@ -166,10 +166,13 @@ func (t *TextField) Update() {
 					break readchar
 				}
 				if state.Committed {
-					t.text = t.text[:t.selectionStart] + state.Text + t.text[t.selectionEnd:]
-					t.selectionStart += len(state.Text)
-					t.selectionEnd = t.selectionStart
-					t.state = textinput.State{}
+					commitText := t.text[:t.selectionStart] + state.Text + t.text[t.selectionEnd:]
+					if utf8.RuneCountInString(commitText) <= maxContentLength {
+						t.text = commitText
+						t.selectionStart += len(state.Text)
+						t.selectionEnd = t.selectionStart
+						t.state = textinput.State{}
+					}
 					continue
 				}
 				t.state = state
@@ -190,12 +193,6 @@ func (t *TextField) Update() {
 	}
 
 	switch {
-	case inpututil.IsKeyJustPressed(ebiten.KeyEnter):
-		if t.multilines {
-			t.text = t.text[:t.selectionStart] + "\n" + t.text[t.selectionEnd:]
-			t.selectionStart += 1
-			t.selectionEnd = t.selectionStart
-		}
 	case inpututil.IsKeyJustPressed(ebiten.KeyBackspace):
 		if t.selectionStart > 0 {
 			// TODO: Remove a grapheme instead of a code point.

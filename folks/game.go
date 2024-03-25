@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"slices"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +24,8 @@ type Game struct {
 	id          string
 	x           int
 	y           int
+	pushedDir   entity.Dir
+	dir         entity.Dir
 	now         time.Time
 	messages    []*Message
 	characters  map[string]*Character
@@ -70,9 +73,11 @@ func (g *Game) init() {
 			)
 		case "say":
 			// ブラウザでの表示バグの暫定対処のために先頭にスペースを追加
-			message, _ := NewMessage(id, " "+message.Body().Text(), message.CreatedAt())
-			g.messageArea.AddMessage(message)
-			g.messages = append(g.messages, message)
+			message, _ := NewMessage(id, message.Body().Text(), message.CreatedAt())
+			if message != nil {
+				g.messageArea.AddMessage(message)
+				g.messages = append(g.messages, message)
+			}
 		case "leave":
 			delete(g.characters, id)
 		}
@@ -83,16 +88,16 @@ func (g *Game) init() {
 
 	w, h := characterImage[0].Bounds().Dx(), characterImage[0].Bounds().Dy()
 	g.characters = map[string]*Character{}
-	x, y, dir := rand.Intn(ScreenWidth-w), rand.Intn(ScreenHeight-h), entity.DirRight
+	g.x, g.y, g.dir = rand.Intn(ScreenWidth-w), rand.Intn(ScreenHeight-h), entity.DirRight
 	g.characters[g.id] = NewCharacter(
 		g.id,
 		characterImage[0],
-		x,
-		y,
-		dir,
+		g.x,
+		g.y,
+		g.dir,
 	)
 	g.ws.Send(entity.NewMessage("enter", entity.NewEnterReqBody(g.id), g.now))
-	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
+	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.dir), g.now))
 }
 
 func (g *Game) Exit() error {
@@ -108,20 +113,20 @@ func (g *Game) Update() error {
 	g.x, g.y = ebiten.CursorPosition()
 	g.now = time.Now()
 
-	// character direction
-	dir := entity.DirUnknown
+	// Character Direction
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		dir = entity.DirRight
+		g.pushedDir = entity.DirRight
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		dir = entity.DirLeft
+		g.pushedDir = entity.DirLeft
 	}
-	if dir != entity.DirUnknown {
+	if g.dir != g.pushedDir {
 		x, y := g.characters[g.id].Point()
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
+		g.dir = g.pushedDir
+		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
 	}
 
-	// message
+	// Meessage
 	latestExpiredMessageIndex := -1
 	for i, message := range g.messages {
 		if message.IsExpired(g.now) {
@@ -137,16 +142,18 @@ func (g *Game) Update() error {
 		g.messages = slices.Delete(g.messages, 0, latestExpiredMessageIndex)
 	}
 
-	// InputField
-	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
-		text := g.textField.Text()
-		g.textField.Clear()
-		g.ws.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text), g.now))
-	}
+	// Input Field
 	if g.textField == nil {
 		pX := TextFieldPadding
 		pY := ScreenHeight - TextFieldPadding - TextFieldHeight
 		g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+TextFieldHeight), false)
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+		text := g.textField.Text()
+		g.textField.Clear()
+		if strings.TrimSpace(text) != "" {
+			g.ws.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text), g.now))
+		}
 	}
 	g.textField.Update()
 	if g.textField.Contains(g.x, g.y) {
@@ -170,8 +177,7 @@ func (g *Game) Update() error {
 	}
 	for s := range g.strokes {
 		x, y := s.Position()
-		dir := g.characters[g.id].Dir()
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
+		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
 		delete(g.strokes, s)
 	}
 	return nil
