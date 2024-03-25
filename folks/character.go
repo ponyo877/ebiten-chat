@@ -36,13 +36,13 @@ func (c *Character) IsMine(myID string) bool {
 }
 
 // Draw draws the sprite.
-func (c *Character) Draw(screen *ebiten.Image, dx, dy int, alpha float32) {
+func (c *Character) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.Filter = ebiten.FilterLinear
 	if c.dir == entity.DirLeft {
 		op.GeoM.Scale(-1, 1)
+		op.GeoM.Translate(characterWidth, 0)
 	}
-	op.GeoM.Translate(float64(c.x+dx), float64(c.y+dy))
-	op.ColorScale.ScaleAlpha(alpha)
+	op.GeoM.Translate(float64(c.x)-characterWidth/2, float64(c.y)-characterHeight/2)
 	screen.DrawImage(c.image, op)
 }

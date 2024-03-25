@@ -19,9 +19,6 @@ import (
 )
 
 var (
-	//go:embed 00.png
-	Image00 []byte
-
 	//go:embed 01.png
 	Image01 []byte
 
@@ -83,7 +80,6 @@ var (
 	Image20 []byte
 
 	Images = [][]byte{
-		Image00,
 		Image01,
 		Image02,
 		Image03,

@@ -22,6 +22,8 @@ const (
 	TextFieldPadding  = 16
 	fontSize          = 24
 	smallFontSize     = fontSize / 2
+	characterWidth    = 80
+	characterHeight   = 80
 )
 
 var (

@@ -185,7 +185,7 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 	}
 	sort.Strings(characterKeys)
 	for _, k := range characterKeys {
-		g.characters[k].Draw(screen, 0, 0, 1)
+		g.characters[k].Draw(screen)
 	}
 
 	// SpeechBubble
