@@ -1,4 +1,4 @@
-package websocket
+package presenter
 
 import "github.com/ponyo877/folks-ui/entity"
 

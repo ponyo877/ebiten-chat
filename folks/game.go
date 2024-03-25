@@ -24,10 +24,10 @@ type Game struct {
 	id          string
 	x           int
 	y           int
-	pushedDir   entity.Dir
 	dir         entity.Dir
+	pushedDir   entity.Dir
 	now         time.Time
-	messages    []*Message
+	messages    []*entity.ChatMessage
 	characters  map[string]*Character
 	strokes     map[*Stroke]struct{}
 	touchIDs    []ebiten.TouchID
@@ -50,7 +50,7 @@ func (g *Game) init() {
 	if g.ws, err = websocket.NewWebSocket(g.schema, g.host, "/v1/socket"); err != nil {
 		fmt.Printf("failed to connect to websocket: %v\n", err)
 	}
-	go g.ws.Receive(func(message *entity.Message) {
+	go g.ws.Receive(func(message *entity.SocketMessage) {
 		id := message.Body().ID()
 		switch message.MessageType() {
 		case "enter":
@@ -72,8 +72,7 @@ func (g *Game) init() {
 				message.Body().Dir(),
 			)
 		case "say":
-			// ブラウザでの表示バグの暫定対処のために先頭にスペースを追加
-			message, _ := NewMessage(id, message.Body().Text(), message.CreatedAt())
+			message, _ := entity.NewChatMessage(id, message.Body().Text(), message.CreatedAt())
 			if message != nil {
 				g.messageArea.AddMessage(message)
 				g.messages = append(g.messages, message)
@@ -89,19 +88,17 @@ func (g *Game) init() {
 	w, h := characterImage[0].Bounds().Dx(), characterImage[0].Bounds().Dy()
 	g.characters = map[string]*Character{}
 	g.x, g.y, g.dir = rand.Intn(ScreenWidth-w), rand.Intn(ScreenHeight-h), entity.DirRight
-	g.characters[g.id] = NewCharacter(
-		g.id,
-		characterImage[0],
-		g.x,
-		g.y,
-		g.dir,
-	)
-	g.ws.Send(entity.NewMessage("enter", entity.NewEnterReqBody(g.id), g.now))
-	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.dir), g.now))
+	g.messageArea = NewMessageArea(MessageAreaPointX, 0)
+	pX := TextFieldPadding
+	pY := ScreenHeight - TextFieldPadding - TextFieldHeight
+	g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+TextFieldHeight), false)
+
+	g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
+	g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.dir), g.now))
 }
 
 func (g *Game) Exit() error {
-	g.ws.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id), g.now))
+	g.ws.Send(entity.NewSocketMessage("leave", entity.NewLeaveBody(g.id), g.now))
 	return nil
 }
 
@@ -120,10 +117,10 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		g.pushedDir = entity.DirLeft
 	}
-	if g.dir != g.pushedDir {
+	if _, ok := g.characters[g.id]; ok && g.dir != g.pushedDir {
 		x, y := g.characters[g.id].Point()
 		g.dir = g.pushedDir
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
+		g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
 	}
 
 	// Meessage
@@ -134,25 +131,16 @@ func (g *Game) Update() error {
 			continue
 		}
 	}
-	if g.messageArea == nil {
-		g.messageArea = NewMessageArea(MessageAreaPointX, 0)
-	}
 	if latestExpiredMessageIndex > 0 {
-		// g.messageArea.AddMessage(g.messages[0:latestExpiredMessageIndex])
 		g.messages = slices.Delete(g.messages, 0, latestExpiredMessageIndex)
 	}
 
 	// Input Field
-	if g.textField == nil {
-		pX := TextFieldPadding
-		pY := ScreenHeight - TextFieldPadding - TextFieldHeight
-		g.textField = NewTextField(image.Rect(pX, pY, ScreenWidth-pX, pY+TextFieldHeight), false)
-	}
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		text := g.textField.Text()
 		g.textField.Clear()
 		if strings.TrimSpace(text) != "" {
-			g.ws.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text), g.now))
+			g.ws.Send(entity.NewSocketMessage("say", entity.NewSayBody(g.id, text), g.now))
 		}
 	}
 	g.textField.Update()
@@ -177,7 +165,7 @@ func (g *Game) Update() error {
 	}
 	for s := range g.strokes {
 		x, y := s.Position()
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
+		g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, x, y, g.dir), g.now))
 		delete(g.strokes, s)
 	}
 	return nil

@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/hajimehoshi/bitmapfont/v3"
+	"github.com/ponyo877/folks-ui/entity"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/exp/textinput"
@@ -167,7 +168,7 @@ func (t *TextField) Update() {
 				}
 				if state.Committed {
 					commitText := t.text[:t.selectionStart] + state.Text + t.text[t.selectionEnd:]
-					if utf8.RuneCountInString(commitText) <= maxContentLength {
+					if utf8.RuneCountInString(commitText) <= entity.MaxContentLength {
 						t.text = commitText
 						t.selectionStart += len(state.Text)
 						t.selectionEnd = t.selectionStart

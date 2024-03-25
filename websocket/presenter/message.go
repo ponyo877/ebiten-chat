@@ -1,4 +1,4 @@
-package websocket
+package presenter
 
 import (
 	"time"
@@ -13,7 +13,7 @@ type MessagePresenter struct {
 	CreatedAt   time.Time      `json:"createdAt"`
 }
 
-func NewMessagePresenter(message *entity.Message) MessagePresenter {
+func NewMessagePresenter(message *entity.SocketMessage) MessagePresenter {
 	return MessagePresenter{
 		MessageType: message.MessageType(),
 		Body:        NewBodyPresenter(message.MessageType(), message.Body()),
@@ -22,11 +22,11 @@ func NewMessagePresenter(message *entity.Message) MessagePresenter {
 }
 
 // Unmarshal
-func (m MessagePresenter) Unmarshal() *entity.Message {
-	return entity.NewMessage(m.MessageType, m.Body.Unmarshal(m.MessageType), m.CreatedAt)
+func (m MessagePresenter) Unmarshal() *entity.SocketMessage {
+	return entity.NewSocketMessage(m.MessageType, m.Body.Unmarshal(m.MessageType), m.CreatedAt)
 }
 
 // MarshalMessage
-func MarshalMessage(message *entity.Message) MessagePresenter {
+func MarshalMessage(message *entity.SocketMessage) MessagePresenter {
 	return NewMessagePresenter(message)
 }

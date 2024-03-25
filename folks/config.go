@@ -2,7 +2,6 @@ package folks
 
 import (
 	"bytes"
-	"flag"
 	"image"
 	"log"
 	"math/rand"
@@ -14,8 +13,6 @@ import (
 	resources "github.com/ponyo877/folks-ui/static"
 )
 
-var FlagCRT = flag.Bool("crt", false, "enable the CRT effect")
-
 const (
 	ScreenWidth       = 1400
 	ScreenHeight      = 700
@@ -23,19 +20,12 @@ const (
 	MessageAreaWidth  = ScreenWidth - MessageAreaPointX
 	TextFieldHeight   = 24
 	TextFieldPadding  = 16
-	tileSize          = 32
-	titleFontSize     = fontSize * 1.5
 	fontSize          = 24
 	smallFontSize     = fontSize / 2
-	pipeWidth         = tileSize * 2
-	pipeStartOffsetX  = 8
-	pipeIntervalX     = 8
-	pipeGapY          = 5
 )
 
 var (
-	characterImage []*ebiten.Image
-	// gopherRightImage *ebiten.Image
+	characterImage   []*ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
 )
 

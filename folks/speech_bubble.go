@@ -7,10 +7,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/ponyo877/folks-ui/entity"
 )
 
 type SpeechBubble struct {
-	message   *Message
+	message   *entity.ChatMessage
 	x         float64
 	y         float64
 	createdAt int64
@@ -23,7 +24,7 @@ var (
 )
 
 // NewSpeechBubble creates a new SpeechBubble
-func NewSpeechBubble(message *Message, x, y int) (*SpeechBubble, error) {
+func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, error) {
 	createdAt := time.Now().Unix()
 	return &SpeechBubble{
 		message:   message,

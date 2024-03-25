@@ -6,18 +6,18 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/ponyo877/folks-ui/entity"
 )
 
 var maxMessagesCount = 50
 
 type MessageArea struct {
-	messages []*Message
+	messages []*entity.ChatMessage
 	x        float64
 	y        float64
 }
 
 var (
-	// messageAreaWidth           float32     = 450.0
 	messageAreaHeight          float32     = smallFontSize*float32(maxMessagesCount) + 5
 	messageAreaBackgroundColor color.Color = color.RGBA{0x22, 0x22, 0x22, 0x88}
 )
@@ -25,13 +25,13 @@ var (
 // NewMessageArea creates a new MessageArea
 func NewMessageArea(x, y int) *MessageArea {
 	return &MessageArea{
-		messages: []*Message{},
+		messages: []*entity.ChatMessage{},
 		x:        float64(x),
 		y:        float64(y),
 	}
 }
 
-func (s *MessageArea) AddMessage(msg *Message) {
+func (s *MessageArea) AddMessage(msg *entity.ChatMessage) {
 	s.messages = append(s.messages, msg)
 }
 
