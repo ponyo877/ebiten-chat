@@ -11,25 +11,25 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/ponyo877/folks-ui/entity"
 	"github.com/ponyo877/folks-ui/websocket"
 )
 
 type Game struct {
-	ws         *websocket.WebSocket
-	schema     string
-	host       string
-	id         string
-	x          int
-	y          int
-	now        time.Time
-	messages   []*Message
-	characters map[string]*Character
-	strokes    map[*Stroke]struct{}
-	touchIDs   []ebiten.TouchID
-	textField  *TextField
+	ws          *websocket.WebSocket
+	schema      string
+	host        string
+	id          string
+	x           int
+	y           int
+	now         time.Time
+	messages    []*Message
+	characters  map[string]*Character
+	strokes     map[*Stroke]struct{}
+	touchIDs    []ebiten.TouchID
+	textField   *TextField
+	messageArea *MessageArea
 }
 
 func NewGame(schema, host string) *Game {
@@ -42,6 +42,7 @@ func NewGame(schema, host string) *Game {
 }
 
 func (g *Game) init() {
+	g.now = time.Now()
 	var err error
 	if g.ws, err = websocket.NewWebSocket(g.schema, g.host, "/v1/socket"); err != nil {
 		fmt.Printf("failed to connect to websocket: %v\n", err)
@@ -69,7 +70,8 @@ func (g *Game) init() {
 			)
 		case "say":
 			// ブラウザでの表示バグの暫定対処のために先頭にスペースを追加
-			message, _ := NewMessage(id, " "+message.Body().Text())
+			message, _ := NewMessage(id, " "+message.Body().Text(), message.CreatedAt())
+			g.messageArea.AddMessage(message)
 			g.messages = append(g.messages, message)
 		case "leave":
 			delete(g.characters, id)
@@ -89,12 +91,12 @@ func (g *Game) init() {
 		y,
 		dir,
 	)
-	g.ws.Send(entity.NewMessage("enter", entity.NewEnterReqBody(g.id)))
-	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+	g.ws.Send(entity.NewMessage("enter", entity.NewEnterReqBody(g.id), g.now))
+	g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
 }
 
 func (g *Game) Exit() error {
-	g.ws.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id)))
+	g.ws.Send(entity.NewMessage("leave", entity.NewLeaveBody(g.id), g.now))
 	return nil
 }
 
@@ -116,7 +118,7 @@ func (g *Game) Update() error {
 	}
 	if dir != entity.DirUnknown {
 		x, y := g.characters[g.id].Point()
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
 	}
 
 	// message
@@ -127,7 +129,11 @@ func (g *Game) Update() error {
 			continue
 		}
 	}
+	if g.messageArea == nil {
+		g.messageArea = NewMessageArea(MessageAreaPointX, 0)
+	}
 	if latestExpiredMessageIndex > 0 {
+		// g.messageArea.AddMessage(g.messages[0:latestExpiredMessageIndex])
 		g.messages = slices.Delete(g.messages, 0, latestExpiredMessageIndex)
 	}
 
@@ -135,7 +141,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		text := g.textField.Text()
 		g.textField.Clear()
-		g.ws.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text)))
+		g.ws.Send(entity.NewMessage("say", entity.NewSayBody(g.id, text), g.now))
 	}
 	if g.textField == nil {
 		pX := TextFieldPadding
@@ -165,7 +171,7 @@ func (g *Game) Update() error {
 	for s := range g.strokes {
 		x, y := s.Position()
 		dir := g.characters[g.id].Dir()
-		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir)))
+		g.ws.Send(entity.NewMessage("move", entity.NewMoveBody(g.id, x, y, dir), g.now))
 		delete(g.strokes, s)
 	}
 	return nil
@@ -175,8 +181,7 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 	Screen.Fill(color.RGBA{0xeb, 0xeb, 0xeb, 0x01})
 	g.drawGopher(Screen)
 	g.drawTextField(Screen)
-
-	ebitenutil.DebugPrint(Screen, fmt.Sprintf("TPS: %0.2f", ebiten.ActualTPS()))
+	g.drawMessageArea(Screen)
 }
 
 func (g *Game) drawGopher(screen *ebiten.Image) {
@@ -203,4 +208,8 @@ func (g *Game) drawGopher(screen *ebiten.Image) {
 
 func (g *Game) drawTextField(screen *ebiten.Image) {
 	g.textField.Draw(screen)
+}
+
+func (g *Game) drawMessageArea(screen *ebiten.Image) {
+	g.messageArea.Draw(screen)
 }

@@ -23,7 +23,7 @@ func NewMessagePresenter(message *entity.Message) MessagePresenter {
 
 // Unmarshal
 func (m MessagePresenter) Unmarshal() *entity.Message {
-	return entity.NewMessage(m.MessageType, m.Body.Unmarshal(m.MessageType))
+	return entity.NewMessage(m.MessageType, m.Body.Unmarshal(m.MessageType), m.CreatedAt)
 }
 
 // MarshalMessage

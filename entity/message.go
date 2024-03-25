@@ -11,11 +11,11 @@ type Message struct {
 }
 
 // NewMessage
-func NewMessage(messageType string, body *Body) *Message {
+func NewMessage(messageType string, body *Body, createdAt time.Time) *Message {
 	return &Message{
 		messageType: messageType,
 		body:        body,
-		createdAt:   time.Now(),
+		createdAt:   createdAt,
 	}
 }
 

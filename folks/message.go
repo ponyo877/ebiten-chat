@@ -1,9 +1,15 @@
 package folks
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+	"unicode/utf8"
+)
 
 var (
-	lifespan int64 = 3000
+	lifespan         int64 = 5000
+	maxContentLength int   = 100
 )
 
 type Message struct {
@@ -13,8 +19,10 @@ type Message struct {
 }
 
 // NewMessage creates a new Message
-func NewMessage(characterID, content string) (*Message, error) {
-	createdAt := time.Now()
+func NewMessage(characterID, content string, createdAt time.Time) (*Message, error) {
+	if utf8.RuneCountInString(content) > maxContentLength {
+		return nil, fmt.Errorf("content is too long")
+	}
 	return &Message{
 		characterID,
 		content,
@@ -30,6 +38,11 @@ func (m *Message) CharacterID() string {
 // Content returns the content of the Message
 func (m *Message) Content() string {
 	return m.content
+}
+
+func (m *Message) Format() string {
+	escaped := strings.Replace(m.content, "\n", " ", -1)
+	return fmt.Sprintf("(id_%3s) %v [%02d/%02d %02d:%02d:%02d]", m.characterID[:3], escaped, m.createdAt.Month(), m.createdAt.Day(), m.createdAt.Hour(), m.createdAt.Minute(), m.createdAt.Second())
 }
 
 // Size returns the size of the Message

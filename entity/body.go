@@ -1,6 +1,8 @@
 package entity
 
-import "hash/fnv"
+import (
+	"hash/fnv"
+)
 
 type Body struct {
 	id    string
@@ -11,7 +13,7 @@ type Body struct {
 	users []*User
 }
 
-func NewSayBody(id string, text string) *Body {
+func NewSayBody(id, text string) *Body {
 	return &Body{
 		id:   id,
 		text: text,

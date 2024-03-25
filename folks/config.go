@@ -17,18 +17,20 @@ import (
 var FlagCRT = flag.Bool("crt", false, "enable the CRT effect")
 
 const (
-	ScreenWidth      = 1400
-	ScreenHeight     = 700
-	TextFieldHeight  = 24
-	TextFieldPadding = 16
-	tileSize         = 32
-	titleFontSize    = fontSize * 1.5
-	fontSize         = 24
-	smallFontSize    = fontSize / 2
-	pipeWidth        = tileSize * 2
-	pipeStartOffsetX = 8
-	pipeIntervalX    = 8
-	pipeGapY         = 5
+	ScreenWidth       = 1400
+	ScreenHeight      = 700
+	MessageAreaPointX = ScreenWidth * 0.7
+	MessageAreaWidth  = ScreenWidth - MessageAreaPointX
+	TextFieldHeight   = 24
+	TextFieldPadding  = 16
+	tileSize          = 32
+	titleFontSize     = fontSize * 1.5
+	fontSize          = 24
+	smallFontSize     = fontSize / 2
+	pipeWidth         = tileSize * 2
+	pipeStartOffsetX  = 8
+	pipeIntervalX     = 8
+	pipeGapY          = 5
 )
 
 var (
