@@ -25,7 +25,7 @@ func (u *User) ID() string {
 func (u *User) ImgIdx() int {
 	h := fnv.New32a()
 	h.Write([]byte(u.id))
-	return int(h.Sum32()) % 21
+	return int(h.Sum32()) % 20
 }
 
 func (u *User) X() int {

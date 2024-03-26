@@ -54,7 +54,7 @@ func (b *Body) ID() string {
 func (b *Body) ImgIdx() int {
 	h := fnv.New32a()
 	h.Write([]byte(b.id))
-	return int(h.Sum32()) % 21
+	return int(h.Sum32()) % 20
 }
 
 func (b *Body) X() int {
