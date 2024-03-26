@@ -1,4 +1,4 @@
-package folks
+package drawable
 
 import (
 	"image"

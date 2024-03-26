@@ -1,4 +1,4 @@
-package folks
+package drawable
 
 import (
 	"bytes"
@@ -26,23 +26,23 @@ const (
 )
 
 var (
-	characterImage   []*ebiten.Image
+	CharacterImage   []*ebiten.Image
 	arcadeFaceSource *text.GoTextFaceSource
 	characterWidth   float64
 	characterHeight  float64
 )
 
 func init() {
-	characterImage = make([]*ebiten.Image, len(resources.Images))
+	CharacterImage = make([]*ebiten.Image, len(resources.Images))
 	for i, img := range resources.Images {
 		img, _, err := image.Decode(bytes.NewReader(img))
 		if err != nil {
 			log.Fatal(err)
 		}
-		characterImage[i] = ebiten.NewImageFromImage(img)
+		CharacterImage[i] = ebiten.NewImageFromImage(img)
 	}
-	characterWidth = float64(characterImage[0].Bounds().Dx())
-	characterHeight = float64(characterImage[0].Bounds().Dy())
+	characterWidth = float64(CharacterImage[0].Bounds().Dx())
+	characterHeight = float64(CharacterImage[0].Bounds().Dy())
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)

@@ -1,4 +1,4 @@
-package folks
+package drawable
 
 import (
 	"image/color"
@@ -22,7 +22,6 @@ var (
 	messageAreaBackgroundColor color.Color = color.RGBA{0x22, 0x22, 0x22, 0x88}
 )
 
-// NewMessageArea creates a new MessageArea
 func NewMessageArea(x, y int) *MessageArea {
 	return &MessageArea{
 		messages: []*entity.ChatMessage{},
@@ -35,7 +34,6 @@ func (s *MessageArea) AddMessage(msg *entity.ChatMessage) {
 	s.messages = append(s.messages, msg)
 }
 
-// Draw draws the MessageArea
 func (s *MessageArea) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, float32(s.x), float32(s.y), MessageAreaWidth, messageAreaHeight, messageAreaBackgroundColor, true)
 	limit := min(len(s.messages), maxMessagesCount)

@@ -1,4 +1,4 @@
-package folks
+package drawable
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -35,7 +35,6 @@ func (c *Character) IsMine(myID string) bool {
 	return c.id == myID
 }
 
-// Draw draws the sprite.
 func (c *Character) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.Filter = ebiten.FilterLinear

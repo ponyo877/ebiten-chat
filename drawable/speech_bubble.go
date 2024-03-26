@@ -1,4 +1,4 @@
-package folks
+package drawable
 
 import (
 	"image/color"
@@ -21,7 +21,6 @@ var (
 	speechBubbleAltitudeUnit float64 = 0.03
 )
 
-// NewSpeechBubble creates a new SpeechBubble
 func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, error) {
 	createdAt := time.Now().Unix()
 	return &SpeechBubble{
@@ -32,7 +31,6 @@ func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, erro
 	}, nil
 }
 
-// Draw draws the SpeechBubble
 func (s *SpeechBubble) Draw(screen *ebiten.Image, now time.Time) {
 	w, h := text.Measure(s.message.Content(), &text.GoTextFace{
 		Source: arcadeFaceSource,
@@ -53,7 +51,6 @@ func (s *SpeechBubble) Draw(screen *ebiten.Image, now time.Time) {
 	}, op)
 }
 
-// Altitude returns the altitude of the SpeechBubble
 func (s *SpeechBubble) altitude(now time.Time) float64 {
 	return float64(s.message.ElapsedMilli(now)) * speechBubbleAltitudeUnit
 }
