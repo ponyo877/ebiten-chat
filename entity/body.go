@@ -1,13 +1,13 @@
 package entity
 
-import (
-	"hash/fnv"
-)
+import "fmt"
 
 type Body struct {
 	id    string
 	x     int
 	y     int
+	name  string
+	imgid int
 	dir   Dir
 	text  string
 	users []*User
@@ -20,12 +20,17 @@ func NewSayBody(id, text string) *Body {
 	}
 }
 
-func NewMoveBody(id string, x, y int, dir Dir) *Body {
+func NewMoveBody(id string, x, y int, name string, imgid int, dir Dir) *Body {
+	if imgid > 20 {
+		panic(fmt.Sprintf("imgid must be less than 20, but got %d", imgid))
+	}
 	return &Body{
-		id:  id,
-		x:   x,
-		y:   y,
-		dir: dir,
+		id:    id,
+		x:     x,
+		y:     y,
+		name:  name,
+		imgid: imgid,
+		dir:   dir,
 	}
 }
 
@@ -51,18 +56,23 @@ func (b *Body) ID() string {
 	return b.id
 }
 
-func (b *Body) ImgIdx() int {
-	h := fnv.New32a()
-	h.Write([]byte(b.id))
-	return int(h.Sum32()) % 20
-}
-
 func (b *Body) X() int {
 	return b.x
 }
 
 func (b *Body) Y() int {
 	return b.y
+}
+
+func (b *Body) Name() string {
+	return b.name
+}
+
+func (b *Body) ImgID() int {
+	return b.imgid
+	// h := fnv.New32a()
+	// h.Write([]byte(b.id))
+	// return int(h.Sum32()) % 20
 }
 
 func (b *Body) Dir() Dir {

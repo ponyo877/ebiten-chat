@@ -8,6 +8,8 @@ type BodyPresenter struct {
 	ID    string           `json:"id"`
 	X     int              `json:"x,omitempty"`
 	Y     int              `json:"y,omitempty"`
+	Name  string           `json:"name,omitempty"`
+	ImgID int              `json:"imgid,omitempty"`
 	Dir   int              `json:"dir,omitempty"`
 	Text  string           `json:"text,omitempty"`
 	Users []*UserPresenter `json:"users,omitempty"`
@@ -22,10 +24,12 @@ func NewSayBodyPresenter(body *entity.Body) *BodyPresenter {
 
 func NewMoveBodyPresenter(body *entity.Body) *BodyPresenter {
 	return &BodyPresenter{
-		ID:  body.ID(),
-		X:   body.X(),
-		Y:   body.Y(),
-		Dir: int(body.Dir()),
+		ID:    body.ID(),
+		X:     body.X(),
+		Y:     body.Y(),
+		Name:  body.Name(),
+		ImgID: body.ImgID(),
+		Dir:   int(body.Dir()),
 	}
 }
 
@@ -66,11 +70,11 @@ func (b *BodyPresenter) Unmarshal(messageType string) *entity.Body {
 	case "say":
 		return entity.NewSayBody(b.ID, b.Text)
 	case "move":
-		return entity.NewMoveBody(b.ID, b.X, b.Y, entity.Dir(b.Dir))
+		return entity.NewMoveBody(b.ID, b.X, b.Y, b.Name, b.ImgID, entity.Dir(b.Dir))
 	case "enter":
 		var users []*entity.User
-		for _, userPresenter := range b.Users {
-			user := entity.NewUser(userPresenter.ID, userPresenter.X, userPresenter.Y, entity.Dir(userPresenter.Dir))
+		for _, up := range b.Users {
+			user := entity.NewUser(up.ID, up.X, up.Y, up.Name, up.ImgID, entity.Dir(up.Dir))
 			users = append(users, user)
 		}
 		return entity.NewEnterRespBody(users)

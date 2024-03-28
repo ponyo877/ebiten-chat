@@ -69,7 +69,7 @@ func (t *TextField) textIndexByCursorPosition(x, y int) (int, bool) {
 
 	x -= t.bounds.Min.X
 	y -= t.bounds.Min.Y
-	px, py := textFieldPadding()
+	px, py := t.textFieldPadding()
 	x -= px
 	y -= py
 	if x < 0 {
@@ -143,7 +143,7 @@ func (t *TextField) Update() {
 		if t.ch == nil {
 			x, y := t.bounds.Min.X, t.bounds.Min.Y
 			cx, cy := t.cursorPos()
-			px, py := textFieldPadding()
+			px, py := t.textFieldPadding()
 			x += cx + px
 			y += cy + py + int(fontFace.Metrics().HAscent)
 			t.ch, t.end = textinput.Start(x, y)
@@ -254,7 +254,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	}
 	vector.StrokeRect(screen, float32(t.bounds.Min.X), float32(t.bounds.Min.Y), float32(t.bounds.Dx()), float32(t.bounds.Dy()), 1, clr, false)
 
-	px, py := textFieldPadding()
+	px, py := t.textFieldPadding()
 	if t.focused && t.selectionStart >= 0 {
 		x, y := t.bounds.Min.X, t.bounds.Min.Y
 		cx, cy := t.cursorPos()
@@ -280,7 +280,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	}, op)
 }
 
-func textFieldPadding() (int, int) {
+func (t *TextField) textFieldPadding() (int, int) {
 	m := fontFace.Metrics()
-	return 4, (TextFieldHeight - int(m.HLineGap+m.HAscent+m.HDescent)) / 2
+	return 4, (t.bounds.Dy() - int(m.HLineGap+m.HAscent+m.HDescent)) / 2
 }

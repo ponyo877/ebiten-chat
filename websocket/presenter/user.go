@@ -1,12 +1,16 @@
 package presenter
 
-import "github.com/ponyo877/folks-ui/entity"
+import (
+	"github.com/ponyo877/folks-ui/entity"
+)
 
 type UserPresenter struct {
-	ID  string `json:"id"`
-	X   int    `json:"x"`
-	Y   int    `json:"y"`
-	Dir int    `json:"dir"`
+	ID    string `json:"id"`
+	X     int    `json:"x"`
+	Y     int    `json:"y"`
+	Name  string `json:"name"`
+	ImgID int    `json:"imgid"`
+	Dir   int    `json:"dir"`
 }
 
 func NewUserPresenter(user *entity.User) *UserPresenter {

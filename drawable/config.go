@@ -14,15 +14,19 @@ import (
 )
 
 const (
-	ScreenWidth       = 1400
-	ScreenHeight      = 700
-	MessageAreaPointX = ScreenWidth * 0.7
-	MessageAreaWidth  = ScreenWidth - MessageAreaPointX
-	TextFieldPointY   = ScreenHeight * 0.95
-	TextFieldHeight   = ScreenHeight - TextFieldPointY
-	fontSize          = TextFieldHeight * 0.75
-	smallFontSize     = TextFieldHeight * 0.5
-	logFontSize       = smallFontSize * 0.8
+	ScreenWidth        = 1400
+	ScreenHeight       = 700
+	MessageAreaPointX  = ScreenWidth * 0.7
+	MessageFieldPointY = ScreenHeight * 0.95
+	MessageAreaWidth   = ScreenWidth - MessageAreaPointX
+	MessageFieldHeight = ScreenHeight - MessageFieldPointY
+	NameFieldWidth     = ScreenWidth * 0.3
+	NameFieldHeight    = ScreenHeight * 0.05
+	NameFieldPointX    = ScreenWidth*0.5 - NameFieldWidth*0.5
+	NameFieldPointY    = ScreenHeight*0.325 - NameFieldHeight*0.5
+	fontSize           = MessageFieldHeight * 0.75
+	smallFontSize      = MessageFieldHeight * 0.5
+	logFontSize        = smallFontSize * 0.8
 )
 
 var (
