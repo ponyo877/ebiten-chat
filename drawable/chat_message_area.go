@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/ponyo877/folks-ui/entity"
 )
@@ -38,14 +37,7 @@ func (s *MessageArea) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, float32(s.x), float32(s.y), MessageAreaWidth, messageAreaHeight, messageAreaBackgroundColor, true)
 	limit := min(len(s.messages), maxMessagesCount)
 	for i, msg := range s.messages[len(s.messages)-limit:] {
-		op := &text.DrawOptions{}
-		op.ColorScale.ScaleWithColor(color.Gray16{0xffff})
-		op.LineSpacing = logFontSize
-		op.Filter = ebiten.FilterLinear
-		op.GeoM.Translate(s.x, s.y+float64(i)*logFontSize)
-		text.Draw(screen, msg.Format(), &text.GoTextFace{
-			Source: arcadeFaceSource,
-			Size:   logFontSize,
-		}, op)
+		msgTxt := NewText(s.x, s.y+float64(i)*logFontSize, logFontSize, msg.Format(), color.Gray16{0xffff}, arcadeFaceSource)
+		msgTxt.Draw(screen, false)
 	}
 }

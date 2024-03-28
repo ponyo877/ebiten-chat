@@ -1,10 +1,10 @@
 package drawable
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/ponyo877/folks-ui/entity"
 )
 
@@ -40,6 +40,10 @@ func (c *Character) IsMine(myID string) bool {
 	return c.id == myID
 }
 
+func (c *Character) ShortID() string {
+	return fmt.Sprintf("◇%s", c.id[:3])
+}
+
 func (c *Character) Name() string {
 	return c.name
 }
@@ -48,48 +52,19 @@ func (c *Character) image() *ebiten.Image {
 	return CharacterImage[c.imgid]
 }
 
-func (c *Character) Bounds() (float64, float64) {
-	return text.Measure(c.name, &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   smallFontSize,
-	}, smallFontSize)
-}
-
-func (c *Character) BoundsID() (float64, float64) {
-	return text.Measure("◇"+c.id[:3], &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   logFontSize,
-	}, logFontSize)
-}
-
 func (c *Character) Draw(screen *ebiten.Image) {
-	opi := &ebiten.DrawImageOptions{}
-	opi.Filter = ebiten.FilterLinear
+	op := &ebiten.DrawImageOptions{}
+	op.Filter = ebiten.FilterLinear
 	if c.dir == entity.DirLeft {
-		opi.GeoM.Scale(-1, 1)
-		opi.GeoM.Translate(characterWidth, 0)
+		op.GeoM.Scale(-1, 1)
+		op.GeoM.Translate(characterWidth, 0)
 	}
-	opi.GeoM.Translate(float64(c.x)-characterWidth/2, float64(c.y)-characterHeight/2)
-	screen.DrawImage(c.image(), opi)
+	op.GeoM.Translate(float64(c.x)-characterWidth/2, float64(c.y)-characterHeight/2)
+	screen.DrawImage(c.image(), op)
+	nameTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2, smallFontSize, c.name, color.Black, arcadeFaceSource)
+	nameTxt.Draw(screen, true)
 
-	opt := &text.DrawOptions{}
-	w, h := c.Bounds()
-	opt.GeoM.Translate(float64(float64(c.x)-w/2), float64(c.y)+characterHeight/2)
-	opt.ColorScale.ScaleWithColor(color.Black)
-	opt.LineSpacing = smallFontSize
-	opt.Filter = ebiten.FilterLinear
-	text.Draw(screen, c.name, &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   smallFontSize,
-	}, opt)
-	opid := &text.DrawOptions{}
-	opid.ColorScale.ScaleWithColor(color.Black)
-	opid.LineSpacing = logFontSize
-	opid.Filter = ebiten.FilterLinear
-	wi, _ := c.BoundsID()
-	opid.GeoM.Translate(float64(float64(c.x)-wi/2), float64(c.y)+characterHeight/2+h)
-	text.Draw(screen, "◇"+c.id[:3], &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   logFontSize,
-	}, opid)
+	_, h := nameTxt.Bounds()
+	idTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2+h, logFontSize, c.ShortID(), color.Black, arcadeFaceSource)
+	idTxt.Draw(screen, true)
 }

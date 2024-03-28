@@ -70,9 +70,6 @@ func (b *Body) Name() string {
 
 func (b *Body) ImgID() int {
 	return b.imgid
-	// h := fnv.New32a()
-	// h.Write([]byte(b.id))
-	// return int(h.Sum32()) % 20
 }
 
 func (b *Body) Dir() Dir {

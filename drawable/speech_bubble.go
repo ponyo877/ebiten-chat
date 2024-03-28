@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/ponyo877/folks-ui/entity"
 )
@@ -32,23 +31,13 @@ func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, erro
 }
 
 func (s *SpeechBubble) Draw(screen *ebiten.Image, now time.Time) {
-	w, h := text.Measure(s.message.Content(), &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   fontSize,
-	}, fontSize)
-	pX := s.x - w/2
-	pY := s.y - h - s.altitude(now)
-	op := &text.DrawOptions{}
-	op.GeoM.Translate(float64(pX), float64(pY))
-	op.ColorScale.ScaleWithColor(color.Black)
-	op.LineSpacing = fontSize
-	op.Filter = ebiten.FilterLinear
+	ch := float64(CharacterImage[0].Bounds().Dy())
+	bh := s.y - ch - s.altitude(now)
+	bubbleTxt := NewText(float64(s.x), bh, fontSize, s.message.Content(), color.Black, arcadeFaceSource)
+	w, h := bubbleTxt.Bounds()
 
-	vector.DrawFilledRect(screen, float32(pX), float32(pY), float32(w), float32(h), color.White, true)
-	text.Draw(screen, s.message.Content(), &text.GoTextFace{
-		Source: arcadeFaceSource,
-		Size:   fontSize,
-	}, op)
+	vector.DrawFilledRect(screen, float32(s.x-w/2), float32(bh), float32(w), float32(h), color.White, true)
+	bubbleTxt.Draw(screen, true)
 }
 
 func (s *SpeechBubble) altitude(now time.Time) float64 {
