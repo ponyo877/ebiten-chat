@@ -120,7 +120,9 @@ func (g *Game) Update() error {
 	}
 	g.updateCharacterDir()
 	g.updateChatMsg()
-	g.updateMsgField()
+	if skip := g.updateMsgField(); skip {
+		return nil
+	}
 	g.updateMove()
 	return nil
 }

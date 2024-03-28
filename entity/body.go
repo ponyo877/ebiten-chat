@@ -13,9 +13,10 @@ type Body struct {
 	users []*User
 }
 
-func NewSayBody(id, text string) *Body {
+func NewSayBody(id, name, text string) *Body {
 	return &Body{
 		id:   id,
+		name: name,
 		text: text,
 	}
 }

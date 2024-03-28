@@ -68,7 +68,7 @@ func NewBodyPresenter(messageType string, body *entity.Body) *BodyPresenter {
 func (b *BodyPresenter) Unmarshal(messageType string) *entity.Body {
 	switch messageType {
 	case "say":
-		return entity.NewSayBody(b.ID, b.Text)
+		return entity.NewSayBody(b.ID, b.Name, b.Text)
 	case "move":
 		return entity.NewMoveBody(b.ID, b.X, b.Y, b.Name, b.ImgID, entity.Dir(b.Dir))
 	case "enter":

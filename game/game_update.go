@@ -93,12 +93,12 @@ func (g *Game) updateChatMsg() {
 	}
 }
 
-func (g *Game) updateMsgField() {
+func (g *Game) updateMsgField() bool {
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 		text := g.messageField.Text()
 		g.messageField.Clear()
 		if strings.TrimSpace(text) != "" {
-			g.ws.Send(entity.NewSocketMessage("say", entity.NewSayBody(g.id, text), g.now))
+			g.ws.Send(entity.NewSocketMessage("say", entity.NewSayBody(g.id, g.name, text), g.now))
 		}
 	}
 	g.messageField.Update()
@@ -106,10 +106,11 @@ func (g *Game) updateMsgField() {
 		g.messageField.Focus()
 		g.messageField.SetSelectionStartByCursorPosition(g.x, g.y)
 		ebiten.SetCursorShape(ebiten.CursorShapeText)
-		return
+		return true
 	}
 	g.messageField.Blur()
 	ebiten.SetCursorShape(ebiten.CursorShapeDefault)
+	return false
 }
 
 func (g *Game) updateMove() {
@@ -153,10 +154,10 @@ func (g *Game) recieveMessage(message *entity.SocketMessage) {
 			message.Body().Dir(),
 		)
 	case "say":
-		message, _ := entity.NewChatMessage(id, message.Body().Text(), message.CreatedAt())
-		if message != nil {
-			g.messageArea.AddMessage(message)
-			g.messages = append(g.messages, message)
+		msg, _ := entity.NewChatMessage(id, message.Body().Name(), message.Body().Text(), message.CreatedAt())
+		if msg != nil {
+			g.messageArea.AddMessage(msg)
+			g.messages = append(g.messages, msg)
 		}
 	case "leave":
 		delete(g.characters, id)

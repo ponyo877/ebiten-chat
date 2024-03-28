@@ -14,16 +14,18 @@ var (
 
 type ChatMessage struct {
 	characterID string
+	name        string
 	content     string
 	createdAt   time.Time
 }
 
-func NewChatMessage(characterID, content string, createdAt time.Time) (*ChatMessage, error) {
+func NewChatMessage(characterID, name, content string, createdAt time.Time) (*ChatMessage, error) {
 	if utf8.RuneCountInString(content) > MaxContentLength {
 		return nil, fmt.Errorf("content is too long")
 	}
 	return &ChatMessage{
 		characterID,
+		name,
 		content,
 		createdAt,
 	}, nil
@@ -39,7 +41,7 @@ func (m *ChatMessage) Content() string {
 
 func (m *ChatMessage) Format() string {
 	escaped := strings.Replace(m.content, "\n", " ", -1)
-	return fmt.Sprintf("(id_%3s) %v [%02d/%02d %02d:%02d:%02d]", m.characterID[:3], escaped, m.createdAt.Month(), m.createdAt.Day(), m.createdAt.Hour(), m.createdAt.Minute(), m.createdAt.Second())
+	return fmt.Sprintf("(%s◇%3s) %v [%02d/%02d %02d:%02d:%02d]", m.name, m.characterID[:3], escaped, m.createdAt.Month(), m.createdAt.Day(), m.createdAt.Hour(), m.createdAt.Minute(), m.createdAt.Second())
 }
 
 func (m *ChatMessage) Size() float32 {
