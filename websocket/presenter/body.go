@@ -18,6 +18,7 @@ type BodyPresenter struct {
 func NewSayBodyPresenter(body *entity.Body) *BodyPresenter {
 	return &BodyPresenter{
 		ID:   body.ID(),
+		Name: body.Name(),
 		Text: body.Text(),
 	}
 }

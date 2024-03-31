@@ -110,9 +110,6 @@ func (g *Game) Update() error {
 	g.x, g.y = ebiten.CursorPosition()
 	g.now = time.Now()
 	if g.mode == ModeTitle {
-		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
-			g.mode = ModeChat
-		}
 		g.updateNameField()
 		g.updateCharacterSelect()
 		g.updateEnterButton()
