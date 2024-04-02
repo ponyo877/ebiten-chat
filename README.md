@@ -1,7 +1,9 @@
 
 # Ebiten Chat
-Ebiten Chat is a simple avatar chat created with Ebitengine.
-DEMO: https://folks-chat.com/
+Ebiten Chat is a simple avatar chat created with Ebitengine.   
+https://folks-chat.com/
+
+![demo.gif](demo.gif)
 
 # Features
 - Written entirely in Go language.
@@ -9,7 +11,7 @@ DEMO: https://folks-chat.com/
 - You can freely move your chosen avatar within the browser.
 
 # Usage
-You need to implement and connect to a WebSocket server.
+You need to implement and connect to a WebSocket server.   
 The source code for the WebSocket server is not published, but it can be easily written in Go using gorilla/websocket.
 
 For the client, build the WebAssembly and upload it to your web server.
