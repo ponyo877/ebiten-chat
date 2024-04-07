@@ -35,9 +35,15 @@ func (g *Game) updateNameField() {
 }
 
 func (g *Game) updateCharacterSelect() {
-	if g.x-startSelectX > 0 && g.y-startSelectY > 0 {
-		g.bluredX, g.bluredY = (g.x-startSelectX)/cellSize, (g.y-startSelectY)/cellSize
+	// キャラクタ選択画面内にいない
+	if !(g.x-startSelectX > 0 &&
+		g.y-startSelectY > 0 &&
+		g.x-startSelectX < cellSize*NumOfImagesPerRow &&
+		g.y-startSelectY < cellSize*(len(d.CharacterImages)/NumOfImagesPerRow)) {
+		g.bluredX, g.bluredY = -1, -1
+		return
 	}
+	g.bluredX, g.bluredY = (g.x-startSelectX)/cellSize, (g.y-startSelectY)/cellSize
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.clickedX, g.clickedY = g.bluredX, g.bluredY
 		imgid := g.clickedX + g.clickedY*NumOfImagesPerRow
