@@ -16,6 +16,7 @@ import (
 const (
 	ScreenWidth        = 1400
 	ScreenHeight       = 700
+	RoomCount          = 10
 	MessageAreaPointX  = ScreenWidth * 0.7
 	MessageFieldPointY = ScreenHeight * 0.95
 	MessageAreaWidth   = ScreenWidth - MessageAreaPointX
@@ -30,23 +31,24 @@ const (
 )
 
 var (
-	CharacterImage   []*ebiten.Image
+	CharacterImages  []*ebiten.Image
+	RoomButtons      []*Button
 	arcadeFaceSource *text.GoTextFaceSource
 	characterWidth   float64
 	characterHeight  float64
 )
 
 func init() {
-	CharacterImage = make([]*ebiten.Image, len(resources.Images))
+	CharacterImages = make([]*ebiten.Image, len(resources.Images))
 	for i, img := range resources.Images {
 		img, _, err := image.Decode(bytes.NewReader(img))
 		if err != nil {
 			log.Fatal(err)
 		}
-		CharacterImage[i] = ebiten.NewImageFromImage(img)
+		CharacterImages[i] = ebiten.NewImageFromImage(img)
 	}
-	characterWidth = float64(CharacterImage[0].Bounds().Dx())
-	characterHeight = float64(CharacterImage[0].Bounds().Dy())
+	characterWidth = float64(CharacterImages[0].Bounds().Dx())
+	characterHeight = float64(CharacterImages[0].Bounds().Dy())
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(fonts.MPlus1pRegular_ttf))
 	if err != nil {
 		log.Fatal(err)

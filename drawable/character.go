@@ -49,7 +49,7 @@ func (c *Character) Name() string {
 }
 
 func (c *Character) image() *ebiten.Image {
-	return CharacterImage[c.imgid]
+	return CharacterImages[c.imgid]
 }
 
 func (c *Character) Draw(screen *ebiten.Image) {

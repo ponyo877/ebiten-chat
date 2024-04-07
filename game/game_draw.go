@@ -51,7 +51,7 @@ func (g *Game) drawCharacterSelectArea(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("\nCHARACTERID: %v", g.imgid))
 	// 格子を描画
 	for i := 0; i < NumOfImagesPerRow; i++ {
-		for j := 0; j < len(d.CharacterImage)/NumOfImagesPerRow; j++ {
+		for j := 0; j < len(d.CharacterImages)/NumOfImagesPerRow; j++ {
 			var clr color.Color = color.White
 			if i == g.bluredX && j == g.bluredY {
 				clr = color.RGBA{0, 0, 255, 255}
@@ -65,13 +65,19 @@ func (g *Game) drawCharacterSelectArea(screen *ebiten.Image) {
 			vector.StrokeRect(screen, float32(i*cellSize+startSelectX), float32(j*cellSize+startSelectY), cellSize, cellSize, 1, clr, false)
 		}
 	}
-	for i, img := range d.CharacterImage {
+	for i, img := range d.CharacterImages {
 		w, h := img.Bounds().Dx(), img.Bounds().Dy()
 		x := (w+Spacing)*(i%NumOfImagesPerRow) + startSelectX
 		y := (h+Spacing)*(i/NumOfImagesPerRow) + startSelectY
 		opts := &ebiten.DrawImageOptions{}
 		opts.GeoM.Translate(float64(x), float64(y))
 		screen.DrawImage(img, opts)
+	}
+}
+
+func (g *Game) drawRoomButtons(screen *ebiten.Image) {
+	for _, rb := range g.roomButtons {
+		rb.Draw(screen)
 	}
 }
 

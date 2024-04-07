@@ -20,6 +20,7 @@ type Game struct {
 	mode         Mode
 	now          time.Time
 	id           string
+	roomID       string
 	x            int
 	y            int
 	dir          entity.Dir
@@ -33,6 +34,7 @@ type Game struct {
 	messageField *d.TextField
 	nameField    *d.TextField
 	enterButton  *d.Button
+	roomButtons  []*d.Button
 
 	touchIDs []ebiten.TouchID
 	ws       *websocket.WebSocket
@@ -56,7 +58,7 @@ var (
 	startNameX   = d.ScreenWidth/2 - (d.NameFieldWidth)/2
 	startNameY   = d.ScreenHeight/2 - (d.NameFieldHeight)/2 - paddingNameY
 	startSelectX = d.ScreenWidth/2 - (cellSize*NumOfImagesPerRow)/2
-	startSelectY = d.ScreenHeight/2 - (cellSize*len(d.CharacterImage)/NumOfImagesPerRow)/2 + paddingSelectY
+	startSelectY = d.ScreenHeight/2 - (cellSize*len(d.CharacterImages)/NumOfImagesPerRow)/2 + paddingSelectY
 	startEnterX  = d.ScreenWidth / 2
 	startEnterY  = d.ScreenHeight/2 + paddingEnterY
 )
@@ -74,21 +76,21 @@ func (g *Game) init() {
 	g.now = time.Now()
 	uuid, _ := uuid.NewRandom()
 	g.id = uuid.String()
-	w, h := d.CharacterImage[0].Bounds().Dx(), d.CharacterImage[0].Bounds().Dy()
+	w, h := d.CharacterImages[0].Bounds().Dx(), d.CharacterImages[0].Bounds().Dy()
 	g.x, g.y, g.dir = rand.Intn(d.ScreenWidth-w), rand.Intn(d.ScreenHeight-h), entity.DirRight
 	g.characters = map[string]*d.Character{}
 	g.strokes = map[*d.Stroke]struct{}{}
 	g.messageArea = d.NewMessageArea(d.MessageAreaPointX, 0)
 	g.messageField = d.NewTextField(image.Rect(0, d.MessageFieldPointY, d.MessageAreaPointX, d.ScreenHeight))
 	g.nameField = d.NewTextField(image.Rect(int(startNameX), int(startNameY), int(startNameX)+d.NameFieldWidth, int(startNameY)+d.NameFieldHeight))
-	g.enterButton = d.NewButton("   ENTER   ", float64(startEnterX), float64(startEnterY), color.RGBA{0, 255, 0, 255})
+	// g.enterButton = d.NewButton("   ENTER   ", float64(startEnterX), float64(startEnterY), color.RGBA{0, 255, 0, 255})
+	g.roomButtons = make([]*d.Button, d.RoomCount)
+	for i := 0; i < d.RoomCount; i++ {
+		roomText := fmt.Sprintf("   ROOM %v   ", i+1)
+		g.roomButtons[i] = d.NewButton(roomText, float64(i*d.ScreenWidth/d.RoomCount), 0, color.RGBA{0, 255, 0, 255})
+	}
 	g.imgid = -1
 	g.bluredX, g.bluredY, g.clickedX, g.clickedY = -1, -1, -1, -1
-
-	var err error
-	if g.ws, err = websocket.NewWebSocket(g.schema, g.host, "/v1/socket"); err != nil {
-		fmt.Printf("failed to connect to websocket: %v\n", err)
-	}
 }
 
 func (g *Game) Start() error {
@@ -112,7 +114,7 @@ func (g *Game) Update() error {
 	if g.mode == ModeTitle {
 		g.updateNameField()
 		g.updateCharacterSelect()
-		g.updateEnterButton()
+		g.updateRoomButtons()
 		return nil
 	}
 	g.updateCharacterDir()
@@ -129,7 +131,7 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 	if g.mode == ModeTitle {
 		g.drawNameField(Screen)
 		g.drawCharacterSelectArea(Screen)
-		g.drawEnterButton(Screen)
+		g.drawRoomButtons(Screen)
 		return
 	}
 	g.drawCharacters(Screen)

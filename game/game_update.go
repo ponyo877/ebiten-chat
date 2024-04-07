@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"math/rand"
 	"slices"
 	"strings"
@@ -9,7 +10,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	d "github.com/ponyo877/folks-ui/drawable"
 	"github.com/ponyo877/folks-ui/entity"
+	"github.com/ponyo877/folks-ui/websocket"
 )
+
+func (g *Game) connectWebSocket() {
+	var err error
+	wsPath := fmt.Sprintf("/v1/socket/%s", g.roomID)
+	if g.ws, err = websocket.NewWebSocket(g.schema, g.host, wsPath); err != nil {
+		fmt.Printf("failed to connect to websocket: %v\n", err)
+	}
+}
 
 func (g *Game) updateNameField() {
 	g.name = g.nameField.Text()
@@ -31,7 +41,7 @@ func (g *Game) updateCharacterSelect() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		g.clickedX, g.clickedY = g.bluredX, g.bluredY
 		imgid := g.clickedX + g.clickedY*NumOfImagesPerRow
-		if 0 <= imgid && imgid < len(d.CharacterImage) {
+		if 0 <= imgid && imgid < len(d.CharacterImages) {
 			g.imgid = g.clickedX + g.clickedY*NumOfImagesPerRow
 		}
 	}
@@ -54,13 +64,46 @@ func (g *Game) updateEnterButton() {
 				g.name = "名無し"
 			}
 			if g.imgid < 0 {
-				g.imgid = rand.Intn(len(d.CharacterImage))
+				g.imgid = rand.Intn(len(d.CharacterImages))
 			}
 			g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
 			g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.name, g.imgid, g.dir), g.now))
 			go g.ws.Receive(g.recieveMessage)
 			g.mode = ModeChat
 			return
+		}
+		delete(g.strokes, s)
+	}
+}
+
+func (g *Game) updateRoomButtons() {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		s := d.NewStroke(&d.MouseStrokeSource{})
+		g.strokes[s] = struct{}{}
+	}
+	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
+	for _, id := range g.touchIDs {
+		s := d.NewStroke(&d.TouchStrokeSource{ID: id})
+		g.strokes[s] = struct{}{}
+	}
+	for s := range g.strokes {
+		x, y := s.Position()
+		for i, rb := range g.roomButtons {
+			if rb.Contains(x, y) {
+				if g.name == "" {
+					g.name = "名無し"
+				}
+				if g.imgid < 0 {
+					g.imgid = rand.Intn(len(d.CharacterImages))
+				}
+				g.mode = ModeChat
+				g.roomID = fmt.Sprintf("room%0d", i+1)
+				g.connectWebSocket()
+				g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
+				g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.name, g.imgid, g.dir), g.now))
+				go g.ws.Receive(g.recieveMessage)
+				return
+			}
 		}
 		delete(g.strokes, s)
 	}
