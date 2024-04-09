@@ -40,49 +40,26 @@ func (g *Game) updateCharacterSelect() {
 		g.y-startSelectY > 0 &&
 		g.x-startSelectX < cellSize*NumOfImagesPerRow &&
 		g.y-startSelectY < cellSize*(len(d.CharacterImages)/NumOfImagesPerRow)) {
-		g.bluredX, g.bluredY = -1, -1
+		g.bluredCharacterX, g.bluredCharacterY = -1, -1
 		return
 	}
-	g.bluredX, g.bluredY = (g.x-startSelectX)/cellSize, (g.y-startSelectY)/cellSize
+	g.bluredCharacterX, g.bluredCharacterY = (g.x-startSelectX)/cellSize, (g.y-startSelectY)/cellSize
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		g.clickedX, g.clickedY = g.bluredX, g.bluredY
-		imgid := g.clickedX + g.clickedY*NumOfImagesPerRow
+		g.clickedCharacterX, g.clickedCharacterY = g.bluredCharacterX, g.bluredCharacterY
+		imgid := g.clickedCharacterX + g.clickedCharacterY*NumOfImagesPerRow
 		if 0 <= imgid && imgid < len(d.CharacterImages) {
-			g.imgid = g.clickedX + g.clickedY*NumOfImagesPerRow
+			g.imgid = g.clickedCharacterX + g.clickedCharacterY*NumOfImagesPerRow
 		}
-	}
-}
-
-func (g *Game) updateEnterButton() {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		s := d.NewStroke(&d.MouseStrokeSource{})
-		g.strokes[s] = struct{}{}
-	}
-	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
-	for _, id := range g.touchIDs {
-		s := d.NewStroke(&d.TouchStrokeSource{ID: id})
-		g.strokes[s] = struct{}{}
-	}
-	for s := range g.strokes {
-		x, y := s.Position()
-		if g.enterButton.Contains(x, y) {
-			if g.name == "" {
-				g.name = "名無し"
-			}
-			if g.imgid < 0 {
-				g.imgid = rand.Intn(len(d.CharacterImages))
-			}
-			g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
-			g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, g.x, g.y, g.name, g.imgid, g.dir), g.now))
-			go g.ws.Receive(g.recieveMessage)
-			g.mode = ModeChat
-			return
-		}
-		delete(g.strokes, s)
 	}
 }
 
 func (g *Game) updateRoomButtons() {
+	g.bluredRoom = -1
+	for i, b := range g.roomButtons {
+		if b.Contains(g.x, g.y) {
+			g.bluredRoom = i
+		}
+	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		s := d.NewStroke(&d.MouseStrokeSource{})
 		g.strokes[s] = struct{}{}
@@ -103,6 +80,7 @@ func (g *Game) updateRoomButtons() {
 					g.imgid = rand.Intn(len(d.CharacterImages))
 				}
 				g.mode = ModeChat
+				// g.roomName = d.NewText(0, 0, 100, fmt.Sprintf("  Room#%d %s  ", i+1, d.RoomList[i]), color.Black, arcadeFaceSource)
 				g.roomID = fmt.Sprintf("room%0d", i+1)
 				g.connectWebSocket()
 				g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))

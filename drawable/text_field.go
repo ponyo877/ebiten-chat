@@ -240,7 +240,7 @@ func (t *TextField) cursorPos() (int, int) {
 	}
 	x := int(text.Advance(txt, &text.GoTextFace{
 		Source: arcadeFaceSource,
-		Size:   smallFontSize,
+		Size:   SmallFontSize,
 	}))
 	y := nlCount * int(fontFace.Metrics().HLineGap+fontFace.Metrics().HAscent+fontFace.Metrics().HDescent)
 	return x, y
@@ -260,7 +260,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 		cx, cy := t.cursorPos()
 		x += px + cx
 		y += py + cy
-		vector.StrokeLine(screen, float32(x), float32(y), float32(x), float32(y)+smallFontSize, 1, color.Black, false)
+		vector.StrokeLine(screen, float32(x), float32(y), float32(x), float32(y)+SmallFontSize, 1, color.Black, false)
 	}
 
 	shownText := t.text
@@ -276,7 +276,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	op.LineSpacing = fontFace.Metrics().HLineGap + fontFace.Metrics().HAscent + fontFace.Metrics().HDescent
 	text.Draw(screen, shownText, &text.GoTextFace{
 		Source: arcadeFaceSource,
-		Size:   smallFontSize,
+		Size:   SmallFontSize,
 	}, op)
 }
 

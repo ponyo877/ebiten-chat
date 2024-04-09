@@ -33,16 +33,18 @@ type Game struct {
 	messageArea  *d.MessageArea
 	messageField *d.TextField
 	nameField    *d.TextField
-	enterButton  *d.Button
-	roomButtons  []*d.Button
+	// enterButton  *d.Button
+	roomButtons []*d.Button
+	roomName    *d.Text
 
 	touchIDs []ebiten.TouchID
 	ws       *websocket.WebSocket
 
-	bluredX  int
-	bluredY  int
-	clickedX int
-	clickedY int
+	bluredCharacterX  int
+	bluredCharacterY  int
+	clickedCharacterX int
+	clickedCharacterY int
+	bluredRoom        int
 }
 
 const (
@@ -51,16 +53,18 @@ const (
 	cellSize          = 80 + Spacing
 	paddingSelectY    = 50
 	paddingNameY      = 175
-	paddingEnterY     = 275
+	paddingRoomY      = 20
 )
 
 var (
-	startNameX   = d.ScreenWidth/2 - (d.NameFieldWidth)/2
-	startNameY   = d.ScreenHeight/2 - (d.NameFieldHeight)/2 - paddingNameY
-	startSelectX = d.ScreenWidth/2 - (cellSize*NumOfImagesPerRow)/2
-	startSelectY = d.ScreenHeight/2 - (cellSize*len(d.CharacterImages)/NumOfImagesPerRow)/2 + paddingSelectY
-	startEnterX  = d.ScreenWidth / 2
-	startEnterY  = d.ScreenHeight/2 + paddingEnterY
+	startNameX   = d.ScreenWidth/4 - d.NameFieldWidth/2
+	startNameY   = d.ScreenHeight/4 - d.NameFieldHeight/2
+	startSelectX = int(d.ScreenWidth/4 - (cellSize*NumOfImagesPerRow)/2)
+	startSelectY = int(startNameY + paddingSelectY)
+	startRoomX   = int(d.ScreenWidth * 3 / 4)
+	startRoomY   = int(startNameY)
+	// startEnterX  = d.ScreenWidth / 2
+	// startEnterY  = d.ScreenHeight/2 + paddingEnterY
 )
 
 func NewGame(schema, host string) *Game {
@@ -84,13 +88,14 @@ func (g *Game) init() {
 	g.messageField = d.NewTextField(image.Rect(0, d.MessageFieldPointY, d.MessageAreaPointX, d.ScreenHeight))
 	g.nameField = d.NewTextField(image.Rect(int(startNameX), int(startNameY), int(startNameX)+d.NameFieldWidth, int(startNameY)+d.NameFieldHeight))
 	// g.enterButton = d.NewButton("   ENTER   ", float64(startEnterX), float64(startEnterY), color.RGBA{0, 255, 0, 255})
-	g.roomButtons = make([]*d.Button, d.RoomCount)
-	for i := 0; i < d.RoomCount; i++ {
-		roomText := fmt.Sprintf("   ROOM %v   ", i+1)
-		g.roomButtons[i] = d.NewButton(roomText, float64(i*d.ScreenWidth/d.RoomCount), 0, color.RGBA{0, 255, 0, 255})
+	g.roomButtons = make([]*d.Button, len(d.RoomList))
+	for i := 0; i < len(d.RoomList); i++ {
+		roomText := fmt.Sprintf("  Room#%d %s  ", i+1, d.RoomList[i])
+		largeFontSize := d.LargeFontSize
+		g.roomButtons[i] = d.NewButton(roomText, float64(startRoomX), float64(startRoomY)+float64(i)*(largeFontSize+paddingRoomY), largeFontSize)
 	}
 	g.imgid = -1
-	g.bluredX, g.bluredY, g.clickedX, g.clickedY = -1, -1, -1, -1
+	g.bluredCharacterX, g.bluredCharacterY, g.clickedCharacterX, g.clickedCharacterY = -1, -1, -1, -1
 }
 
 func (g *Game) Start() error {

@@ -16,7 +16,6 @@ import (
 const (
 	ScreenWidth        = 1400
 	ScreenHeight       = 700
-	RoomCount          = 10
 	MessageAreaPointX  = ScreenWidth * 0.7
 	MessageFieldPointY = ScreenHeight * 0.95
 	MessageAreaWidth   = ScreenWidth - MessageAreaPointX
@@ -25,9 +24,10 @@ const (
 	NameFieldHeight    = ScreenHeight * 0.05
 	NameFieldPointX    = ScreenWidth*0.5 - NameFieldWidth*0.5
 	NameFieldPointY    = ScreenHeight*0.325 - NameFieldHeight*0.5
-	fontSize           = MessageFieldHeight * 0.75
-	smallFontSize      = MessageFieldHeight * 0.5
-	logFontSize        = smallFontSize * 0.8
+	LargeFontSize      = MessageFieldHeight * 1.25
+	MiddleFontSize     = MessageFieldHeight * 0.75
+	SmallFontSize      = MessageFieldHeight * 0.5
+	LogFontSize        = SmallFontSize * 0.8
 )
 
 var (
@@ -36,6 +36,18 @@ var (
 	arcadeFaceSource *text.GoTextFaceSource
 	characterWidth   float64
 	characterHeight  float64
+)
+
+var (
+	RoomList = []string{
+		"せり",
+		"なずな",
+		"ごぎょう",
+		"はこべら",
+		"ほとけのざ",
+		"すずな",
+		"すずしろ",
+	}
 )
 
 func init() {

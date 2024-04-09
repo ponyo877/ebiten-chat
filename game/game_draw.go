@@ -11,6 +11,10 @@ import (
 	d "github.com/ponyo877/folks-ui/drawable"
 )
 
+func (g *Game) drawRoomName(screen *ebiten.Image) {
+
+}
+
 func (g *Game) drawCharacters(screen *ebiten.Image) {
 	characterKeys := make([]string, 0)
 	for k := range g.characters {
@@ -53,16 +57,14 @@ func (g *Game) drawCharacterSelectArea(screen *ebiten.Image) {
 	for i := 0; i < NumOfImagesPerRow; i++ {
 		for j := 0; j < len(d.CharacterImages)/NumOfImagesPerRow; j++ {
 			var clr color.Color = color.White
-			if i == g.bluredX && j == g.bluredY {
+			if i == g.bluredCharacterX && j == g.bluredCharacterY {
 				clr = color.RGBA{0, 0, 255, 255}
 			}
-			if i == g.clickedX && j == g.clickedY {
+			if i == g.clickedCharacterX && j == g.clickedCharacterY {
 				clr = color.RGBA{255, 0, 0, 255}
 			}
-			if clr != color.White {
-				vector.DrawFilledRect(screen, float32(i*cellSize+startSelectX), float32(j*cellSize+startSelectY), cellSize, cellSize, clr, false)
-			}
-			vector.StrokeRect(screen, float32(i*cellSize+startSelectX), float32(j*cellSize+startSelectY), cellSize, cellSize, 1, clr, false)
+			vector.DrawFilledRect(screen, float32(i*cellSize+startSelectX), float32(j*cellSize+startSelectY), cellSize, cellSize, clr, false)
+			vector.StrokeRect(screen, float32(i*cellSize+startSelectX), float32(j*cellSize+startSelectY), cellSize, cellSize, 1, color.Black, false)
 		}
 	}
 	for i, img := range d.CharacterImages {
@@ -76,11 +78,19 @@ func (g *Game) drawCharacterSelectArea(screen *ebiten.Image) {
 }
 
 func (g *Game) drawRoomButtons(screen *ebiten.Image) {
-	for _, rb := range g.roomButtons {
-		rb.Draw(screen)
+	// g.roomButtons.Draw(screen)
+	var maxx, maxy float64 = -1, -1
+	for _, b := range g.roomButtons {
+		xi, yi := b.Bounds()
+		maxx = max(maxx, xi)
+		maxy = max(maxy, yi)
 	}
-}
-
-func (g *Game) drawEnterButton(screen *ebiten.Image) {
-	g.enterButton.Draw(screen)
+	for i, b := range g.roomButtons {
+		var clr color.Color = color.White
+		if i == g.bluredRoom {
+			clr = color.RGBA{0, 0, 255, 255}
+		}
+		b.SetWH(maxx, maxy)
+		b.FixDraw(screen, clr)
+	}
 }

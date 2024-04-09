@@ -61,10 +61,10 @@ func (c *Character) Draw(screen *ebiten.Image) {
 	}
 	op.GeoM.Translate(float64(c.x)-characterWidth/2, float64(c.y)-characterHeight/2)
 	screen.DrawImage(c.image(), op)
-	nameTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2, smallFontSize, c.name, color.Black, arcadeFaceSource)
+	nameTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2, SmallFontSize, c.name, color.Black, arcadeFaceSource)
 	nameTxt.Draw(screen, true)
 
 	_, h := nameTxt.Bounds()
-	idTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2+h, logFontSize, c.ShortID(), color.Black, arcadeFaceSource)
+	idTxt := NewText(float64(c.x), float64(c.y)+characterHeight/2+h, LogFontSize, c.ShortID(), color.Black, arcadeFaceSource)
 	idTxt.Draw(screen, true)
 }
