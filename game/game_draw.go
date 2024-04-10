@@ -15,6 +15,10 @@ func (g *Game) drawRoomName(screen *ebiten.Image) {
 	g.roomText.Draw(screen, false)
 }
 
+func (g *Game) drawUndo(screen *ebiten.Image) {
+	g.undoText.Draw(screen, false)
+}
+
 func (g *Game) drawCharacters(screen *ebiten.Image) {
 	characterKeys := make([]string, 0)
 	for k := range g.characters {

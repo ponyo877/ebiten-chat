@@ -34,7 +34,5 @@ func main() {
 	if err := g.Start(); err != nil {
 		panic(err)
 	}
-	if err := g.Exit(); err != nil {
-		panic(err)
-	}
+	g.Exit()
 }

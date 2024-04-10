@@ -82,6 +82,7 @@ func (g *Game) updateRoomButtons() {
 				}
 				g.mode = ModeChat
 				g.roomText = d.NewText(0, 0, d.RoomNamefontSize, fmt.Sprintf("Room#%d %s", i+1, d.RoomNameList[i]), color.RGBA{0, 0, 0, 50}, d.ArcadeFaceSource)
+				g.undoText = d.NewText(0, 0, d.MiddleFontSize, "◀︎最初の画面に戻る", color.Black, d.ArcadeFaceSource)
 				g.roomID = fmt.Sprintf("room%0d", i+1)
 				g.connectWebSocket()
 				g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))
@@ -92,6 +93,25 @@ func (g *Game) updateRoomButtons() {
 		}
 		delete(g.strokes, s)
 	}
+}
+
+func (g *Game) isUndo() bool {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		s := d.NewStroke(&d.MouseStrokeSource{})
+		g.strokes[s] = struct{}{}
+	}
+	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
+	for _, id := range g.touchIDs {
+		s := d.NewStroke(&d.TouchStrokeSource{ID: id})
+		g.strokes[s] = struct{}{}
+	}
+	for s := range g.strokes {
+		x, y := s.Position()
+		if g.undoText.Contains(x, y, false) {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *Game) updateCharacterDir() {
@@ -156,6 +176,12 @@ func (g *Game) updateMove() {
 		g.ws.Send(entity.NewSocketMessage("move", entity.NewMoveBody(g.id, x, y, g.name, g.imgid, g.dir), g.now))
 		delete(g.strokes, s)
 	}
+}
+
+func (g *Game) Exit() {
+	g.characters = map[string]*d.Character{}
+	g.strokes = map[*d.Stroke]struct{}{}
+	g.ws.Send(entity.NewSocketMessage("leave", entity.NewLeaveBody(g.id), g.now))
 }
 
 func (g *Game) recieveMessage(message *entity.SocketMessage) {

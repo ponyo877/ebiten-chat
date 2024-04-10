@@ -35,9 +35,9 @@ type Game struct {
 	nameField    *d.TextField
 	roomButtons  []*d.Button
 	roomText     *d.Text
-
-	touchIDs []ebiten.TouchID
-	ws       *websocket.WebSocket
+	undoText     *d.Text
+	touchIDs     []ebiten.TouchID
+	ws           *websocket.WebSocket
 
 	bluredCharacterX  int
 	bluredCharacterY  int
@@ -74,7 +74,6 @@ func NewGame(schema, host string) *Game {
 }
 
 func (g *Game) init() {
-	g.now = time.Now()
 	uuid, _ := uuid.NewRandom()
 	g.id = uuid.String()
 	w, h := d.CharacterImages[0].Bounds().Dx(), d.CharacterImages[0].Bounds().Dy()
@@ -100,11 +99,6 @@ func (g *Game) Start() error {
 	return ebiten.RunGame(g)
 }
 
-func (g *Game) Exit() error {
-	g.ws.Send(entity.NewSocketMessage("leave", entity.NewLeaveBody(g.id), g.now))
-	return nil
-}
-
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return d.ScreenWidth, d.ScreenHeight
 }
@@ -116,6 +110,11 @@ func (g *Game) Update() error {
 		g.updateNameField()
 		g.updateCharacterSelect()
 		g.updateRoomButtons()
+		return nil
+	}
+	if g.isUndo() {
+		g.Exit()
+		g.mode = ModeTitle
 		return nil
 	}
 	g.updateCharacterDir()
@@ -136,6 +135,7 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 		return
 	}
 	g.drawRoomName(Screen)
+	g.drawUndo(Screen)
 	g.drawCharacters(Screen)
 	g.drawSpeechBubble(Screen)
 	g.drawMessageArea(Screen)

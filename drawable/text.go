@@ -33,6 +33,14 @@ func (t *Text) Bounds() (float64, float64) {
 	}, t.size)
 }
 
+func (t *Text) Contains(x, y int, center bool) bool {
+	w, h := t.Bounds()
+	if center {
+		return t.x-w/2 <= float64(x) && float64(x) <= t.x+w/2 && t.y <= float64(y) && float64(y) <= t.y+h
+	}
+	return t.x <= float64(x) && float64(x) <= w && t.y <= float64(y) && float64(y) <= t.y+h
+}
+
 func (t *Text) Draw(screen *ebiten.Image, center bool) {
 	op := &text.DrawOptions{}
 	op.ColorScale.ScaleWithColor(t.bgclr)
