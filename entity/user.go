@@ -38,9 +38,6 @@ func (u *User) Name() string {
 
 func (u *User) ImgID() int {
 	return u.imgid
-	// h := fnv.New32a()
-	// h.Write([]byte(u.id))
-	// return int(h.Sum32()) % 20
 }
 
 func (u *User) Dir() Dir {

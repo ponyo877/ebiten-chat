@@ -12,7 +12,7 @@ import (
 )
 
 func (g *Game) drawRoomName(screen *ebiten.Image) {
-
+	g.roomText.Draw(screen, false)
 }
 
 func (g *Game) drawCharacters(screen *ebiten.Image) {
@@ -78,7 +78,6 @@ func (g *Game) drawCharacterSelectArea(screen *ebiten.Image) {
 }
 
 func (g *Game) drawRoomButtons(screen *ebiten.Image) {
-	// g.roomButtons.Draw(screen)
 	var maxx, maxy float64 = -1, -1
 	for _, b := range g.roomButtons {
 		xi, yi := b.Bounds()

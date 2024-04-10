@@ -37,7 +37,7 @@ func (s *MessageArea) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, float32(s.x), float32(s.y), MessageAreaWidth, messageAreaHeight, messageAreaBackgroundColor, true)
 	limit := min(len(s.messages), maxMessagesCount)
 	for i, msg := range s.messages[len(s.messages)-limit:] {
-		msgTxt := NewText(s.x, s.y+float64(i)*LogFontSize, LogFontSize, msg.Format(), color.Gray16{0xffff}, arcadeFaceSource)
+		msgTxt := NewText(s.x, s.y+float64(i)*LogFontSize, LogFontSize, msg.Format(), color.Gray16{0xffff}, ArcadeFaceSource)
 		msgTxt.Draw(screen, false)
 	}
 }

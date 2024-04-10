@@ -26,7 +26,7 @@ func NewButton(text string, x, y float64, fontSize float64) *Button {
 }
 
 func (b *Button) Bounds() (float64, float64) {
-	buttonTxt := NewText(b.x-float64(b.w)/2, b.y, b.fontSize, b.text, color.Black, arcadeFaceSource)
+	buttonTxt := NewText(b.x-float64(b.w)/2, b.y, b.fontSize, b.text, color.Black, ArcadeFaceSource)
 	return buttonTxt.Bounds()
 }
 
@@ -40,6 +40,6 @@ func (b *Button) SetWH(w, h float64) {
 
 func (b *Button) FixDraw(screen *ebiten.Image, clr color.Color) {
 	vector.DrawFilledRect(screen, float32(b.x-float64(b.w)/2), float32(b.y), float32(b.w), float32(b.h), clr, true)
-	buttonTxt := NewText(b.x-float64(b.w)/2, b.y, b.fontSize, b.text, color.Black, arcadeFaceSource)
+	buttonTxt := NewText(b.x-float64(b.w)/2, b.y, b.fontSize, b.text, color.Black, ArcadeFaceSource)
 	buttonTxt.Draw(screen, false)
 }

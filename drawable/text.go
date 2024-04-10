@@ -43,7 +43,7 @@ func (t *Text) Draw(screen *ebiten.Image, center bool) {
 	if center {
 		x = float64(t.x) - w/2
 	}
-	op.GeoM.Translate(x, float64(t.y)) // characterHeight/2+h
+	op.GeoM.Translate(x, float64(t.y))
 	text.Draw(screen, t.text, &text.GoTextFace{
 		Source: t.font,
 		Size:   t.size,

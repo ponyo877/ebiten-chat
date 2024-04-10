@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"image/color"
 	"math/rand"
 	"slices"
 	"strings"
@@ -35,7 +36,7 @@ func (g *Game) updateNameField() {
 }
 
 func (g *Game) updateCharacterSelect() {
-	// キャラクタ選択画面内にいない
+	// キャラクタ選択画面内にいないか
 	if !(g.x-startSelectX > 0 &&
 		g.y-startSelectY > 0 &&
 		g.x-startSelectX < cellSize*NumOfImagesPerRow &&
@@ -80,7 +81,7 @@ func (g *Game) updateRoomButtons() {
 					g.imgid = rand.Intn(len(d.CharacterImages))
 				}
 				g.mode = ModeChat
-				// g.roomName = d.NewText(0, 0, 100, fmt.Sprintf("  Room#%d %s  ", i+1, d.RoomList[i]), color.Black, arcadeFaceSource)
+				g.roomText = d.NewText(0, 0, d.RoomNamefontSize, fmt.Sprintf("Room#%d %s", i+1, d.RoomNameList[i]), color.RGBA{0, 0, 0, 50}, d.ArcadeFaceSource)
 				g.roomID = fmt.Sprintf("room%0d", i+1)
 				g.connectWebSocket()
 				g.ws.Send(entity.NewSocketMessage("enter", entity.NewEnterReqBody(g.id), g.now))

@@ -33,9 +33,8 @@ type Game struct {
 	messageArea  *d.MessageArea
 	messageField *d.TextField
 	nameField    *d.TextField
-	// enterButton  *d.Button
-	roomButtons []*d.Button
-	roomName    *d.Text
+	roomButtons  []*d.Button
+	roomText     *d.Text
 
 	touchIDs []ebiten.TouchID
 	ws       *websocket.WebSocket
@@ -63,8 +62,6 @@ var (
 	startSelectY = int(startNameY + paddingSelectY)
 	startRoomX   = int(d.ScreenWidth * 3 / 4)
 	startRoomY   = int(startNameY)
-	// startEnterX  = d.ScreenWidth / 2
-	// startEnterY  = d.ScreenHeight/2 + paddingEnterY
 )
 
 func NewGame(schema, host string) *Game {
@@ -87,10 +84,9 @@ func (g *Game) init() {
 	g.messageArea = d.NewMessageArea(d.MessageAreaPointX, 0)
 	g.messageField = d.NewTextField(image.Rect(0, d.MessageFieldPointY, d.MessageAreaPointX, d.ScreenHeight))
 	g.nameField = d.NewTextField(image.Rect(int(startNameX), int(startNameY), int(startNameX)+d.NameFieldWidth, int(startNameY)+d.NameFieldHeight))
-	// g.enterButton = d.NewButton("   ENTER   ", float64(startEnterX), float64(startEnterY), color.RGBA{0, 255, 0, 255})
-	g.roomButtons = make([]*d.Button, len(d.RoomList))
-	for i := 0; i < len(d.RoomList); i++ {
-		roomText := fmt.Sprintf("  Room#%d %s  ", i+1, d.RoomList[i])
+	g.roomButtons = make([]*d.Button, len(d.RoomNameList))
+	for i := 0; i < len(d.RoomNameList); i++ {
+		roomText := fmt.Sprintf("  Room#%d %s  ", i+1, d.RoomNameList[i])
 		largeFontSize := d.LargeFontSize
 		g.roomButtons[i] = d.NewButton(roomText, float64(startRoomX), float64(startRoomY)+float64(i)*(largeFontSize+paddingRoomY), largeFontSize)
 	}
@@ -139,6 +135,7 @@ func (g *Game) Draw(Screen *ebiten.Image) {
 		g.drawRoomButtons(Screen)
 		return
 	}
+	g.drawRoomName(Screen)
 	g.drawCharacters(Screen)
 	g.drawSpeechBubble(Screen)
 	g.drawMessageArea(Screen)

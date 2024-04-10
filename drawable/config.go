@@ -24,6 +24,7 @@ const (
 	NameFieldHeight    = ScreenHeight * 0.05
 	NameFieldPointX    = ScreenWidth*0.5 - NameFieldWidth*0.5
 	NameFieldPointY    = ScreenHeight*0.325 - NameFieldHeight*0.5
+	RoomNamefontSize   = MessageFieldHeight * 3
 	LargeFontSize      = MessageFieldHeight * 1.25
 	MiddleFontSize     = MessageFieldHeight * 0.75
 	SmallFontSize      = MessageFieldHeight * 0.5
@@ -33,13 +34,13 @@ const (
 var (
 	CharacterImages  []*ebiten.Image
 	RoomButtons      []*Button
-	arcadeFaceSource *text.GoTextFaceSource
+	ArcadeFaceSource *text.GoTextFaceSource
 	characterWidth   float64
 	characterHeight  float64
 )
 
 var (
-	RoomList = []string{
+	RoomNameList = []string{
 		"せり",
 		"なずな",
 		"ごぎょう",
@@ -65,7 +66,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	arcadeFaceSource = s
+	ArcadeFaceSource = s
 }
 
 func init() {

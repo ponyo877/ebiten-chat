@@ -33,7 +33,7 @@ func NewSpeechBubble(message *entity.ChatMessage, x, y int) (*SpeechBubble, erro
 func (s *SpeechBubble) Draw(screen *ebiten.Image, now time.Time) {
 	ch := float64(CharacterImages[0].Bounds().Dy())
 	bh := s.y - ch - s.altitude(now)
-	bubbleTxt := NewText(float64(s.x), bh, MiddleFontSize, s.message.Content(), color.Black, arcadeFaceSource)
+	bubbleTxt := NewText(float64(s.x), bh, MiddleFontSize, s.message.Content(), color.Black, ArcadeFaceSource)
 	w, h := bubbleTxt.Bounds()
 
 	vector.DrawFilledRect(screen, float32(s.x-w/2), float32(bh), float32(w), float32(h), color.White, true)

@@ -239,7 +239,7 @@ func (t *TextField) cursorPos() (int, int) {
 		txt += t.state.Text[:t.state.CompositionSelectionStartInBytes]
 	}
 	x := int(text.Advance(txt, &text.GoTextFace{
-		Source: arcadeFaceSource,
+		Source: ArcadeFaceSource,
 		Size:   SmallFontSize,
 	}))
 	y := nlCount * int(fontFace.Metrics().HLineGap+fontFace.Metrics().HAscent+fontFace.Metrics().HDescent)
@@ -275,7 +275,7 @@ func (t *TextField) Draw(screen *ebiten.Image) {
 	op.ColorScale.ScaleWithColor(color.Black)
 	op.LineSpacing = fontFace.Metrics().HLineGap + fontFace.Metrics().HAscent + fontFace.Metrics().HDescent
 	text.Draw(screen, shownText, &text.GoTextFace{
-		Source: arcadeFaceSource,
+		Source: ArcadeFaceSource,
 		Size:   SmallFontSize,
 	}, op)
 }
