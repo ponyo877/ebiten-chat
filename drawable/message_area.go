@@ -33,6 +33,10 @@ func (s *MessageArea) AddMessage(msg *entity.ChatMessage) {
 	s.messages = append(s.messages, msg)
 }
 
+func (s *MessageArea) TruncateMessage() {
+	s.messages = nil
+}
+
 func (s *MessageArea) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, float32(s.x), float32(s.y), MessageAreaWidth, messageAreaHeight, messageAreaBackgroundColor, true)
 	limit := min(len(s.messages), maxMessagesCount)

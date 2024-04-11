@@ -181,7 +181,10 @@ func (g *Game) updateMove() {
 func (g *Game) Exit() {
 	g.characters = map[string]*d.Character{}
 	g.strokes = map[*d.Stroke]struct{}{}
+	g.messages = []*entity.ChatMessage{}
+	g.messageArea.TruncateMessage()
 	g.ws.Send(entity.NewSocketMessage("leave", entity.NewLeaveBody(g.id), g.now))
+	go g.ws.Close()
 }
 
 func (g *Game) recieveMessage(message *entity.SocketMessage) {

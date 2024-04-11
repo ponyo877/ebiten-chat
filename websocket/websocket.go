@@ -29,6 +29,10 @@ func (w *WebSocket) Send(message *entity.SocketMessage) error {
 	return wsjson.Write(context.Background(), w.conn, presenter.MarshalMessage(message))
 }
 
+func (w *WebSocket) Close() error {
+	return w.conn.Close(websocket.StatusNormalClosure, "exit")
+}
+
 func (w *WebSocket) Receive(f func(*entity.SocketMessage)) {
 	var messagePresenter presenter.MessagePresenter
 	for {
